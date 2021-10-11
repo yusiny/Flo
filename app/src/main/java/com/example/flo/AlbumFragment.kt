@@ -30,9 +30,6 @@ class AlbumFragment : Fragment() {
                 .commitAllowingStateLoss()
         }
 
-        /*binding.albumSongList1V.setOnClickListener{
-            Toast.makeText(activity, "라일락", Toast.LENGTH_SHORT).show()
-        }*/
 
         //어댑터 연결
         val albumAdapter = AlbumViewpagerAdapter(this)

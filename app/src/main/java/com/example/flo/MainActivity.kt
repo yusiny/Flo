@@ -18,14 +18,7 @@ class MainActivity : AppCompatActivity() {
         //song class에 main activity 미니플레이어 song 정보 전달
         val song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString())
 
-        binding.mainPlayerLayout.setOnClickListener {
-            //startActivity(Intent(this, SongActivity::class.java))
 
-            val intent = Intent(this, SongActivity::class.java)
-            intent.putExtra("title", song.title)
-            intent.putExtra("singer", song.singer)
-            startActivity(intent)
-        }
         var playingStatus : Int = 0
         if(intent.hasExtra("playing")){
             playingStatus = intent.getIntExtra("playing", 0)
@@ -37,9 +30,21 @@ class MainActivity : AppCompatActivity() {
         }
         binding.mainMiniplayerBtn.setOnClickListener {
             playbarStatus(1)
+            playingStatus = 1
         }
         binding.mainPauseBtn.setOnClickListener {
             playbarStatus(0)
+            playingStatus = 0
+        }
+
+        binding.mainPlayerLayout.setOnClickListener {
+            //startActivity(Intent(this, SongActivity::class.java))
+
+            val intent = Intent(this, SongActivity::class.java)
+            intent.putExtra("title", song.title)
+            intent.putExtra("singer", song.singer)
+            intent.putExtra("playing", playingStatus)
+            startActivity(intent)
         }
 
 

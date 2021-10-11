@@ -5,15 +5,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<!--상단 부분-->
     <TextView
+        android:id="@+id/locker_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="보관함 프래그먼트"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="보관함"
+        android:textSize="24sp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp" />
+    <TextView
+        android:id="@+id/locker_login_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="로그인"
+        android:textSize="16sp"
+        android:textColor="#3A3AF8"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/locker_title_tv"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+<!--tablayout-->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/locker_tb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
+        app:tabMode="scrollable"
+        app:tabIndicatorColor="#3A3AF8"
+        app:tabTextColor="#000000"
+        app:tabSelectedTextColor="#3A3AF8"
+        android:layout_margin="20dp"
+        app:tabTextAppearance="@style/TabLayoutTextStyle"
+        app:layout_constraintTop_toBottomOf="@id/locker_title_tv"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/locker_vp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/locker_tb"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

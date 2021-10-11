@@ -1,5 +1,6 @@
 package com.example.flo
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,10 @@ class VideoFragment:Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentVideoBinding.inflate(inflater, container, false)
+
+        binding.videoVideo1Iv.setBackgroundColor(Color.rgb(0, 0, 0))
+        binding.videoVideo1Iv.clipToOutline
+
         return binding.root
     }
 }

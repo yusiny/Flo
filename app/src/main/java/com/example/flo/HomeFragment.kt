@@ -41,6 +41,7 @@ class HomeFragment : Fragment() {
 
         binding.homeBannerVp.adapter = bannerAdapter
         binding.homeBannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
         return binding.root
     }
 
