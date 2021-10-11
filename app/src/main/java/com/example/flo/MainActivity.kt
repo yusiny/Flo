@@ -3,6 +3,7 @@ package com.example.flo
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivityMainBinding
 
@@ -14,14 +15,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mainPlayerLayout.setOnClickListener {
-            startActivity(Intent(this, SongActivity::class.java))
-        }
-
         //song class에 main activity 미니플레이어 song 정보 전달
         val song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString())
 
-        Log.d("Log test", song.title + song.singer)
+        binding.mainPlayerLayout.setOnClickListener {
+            //startActivity(Intent(this, SongActivity::class.java))
+
+            val intent = Intent(this, SongActivity::class.java)
+            intent.putExtra("title", song.title)
+            intent.putExtra("singer", song.singer)
+            startActivity(intent)
+        }
+        var playingStatus : Int = 0
+        if(intent.hasExtra("playing")){
+            playingStatus = intent.getIntExtra("playing", 0)
+        }
+        if(playingStatus == 1){
+            playbarStatus(1)
+        }else if(playingStatus == 0){
+            playbarStatus(0)
+        }
+        binding.mainMiniplayerBtn.setOnClickListener {
+            playbarStatus(1)
+        }
+        binding.mainPauseBtn.setOnClickListener {
+            playbarStatus(0)
+        }
+
 
         initNavigation()
 
@@ -67,5 +87,17 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun playbarStatus(playingStatus: Int){
+        if(playingStatus == 1){
+            binding.mainMiniplayerBtn.visibility = View.GONE
+            binding.mainPauseBtn.visibility = View.VISIBLE
+        }else if (playingStatus == 0){
+            binding.mainMiniplayerBtn.visibility = View.VISIBLE
+            binding.mainPauseBtn.visibility = View.GONE
+        }
+    }
+
 }
+
+
 

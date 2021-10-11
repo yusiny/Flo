@@ -349,7 +349,7 @@
 
    <!-- 배너 -->
 
-         <ImageView
+        <!-- <ImageView
              android:id="@+id/home_banner_iv"
              android:layout_width="match_parent"
              android:layout_height="85dp"
@@ -361,7 +361,16 @@
              android:layout_marginEnd="10dp"
              app:layout_constraintTop_toBottomOf="@id/home_albumarea_v"
              app:layout_constraintStart_toStartOf="parent"
-             app:layout_constraintEnd_toEndOf="parent"/>
+             app:layout_constraintEnd_toEndOf="parent"/>-->
+
+         <androidx.viewpager2.widget.ViewPager2
+             android:id="@+id/home_banner_vp"
+             android:layout_width="match_parent"
+             android:layout_height="100dp"
+             android:layout_marginTop="20dp"
+             app:layout_constraintTop_toBottomOf="@id/home_albumarea_v"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintEnd_toEndOf="parent" />
 
 
    <!-- 매일 들어도 좋은 팟캐스트 -->
@@ -375,7 +384,7 @@
        android:textStyle="bold"
        android:layout_marginStart="20dp"
        android:layout_marginTop="20dp"
-       app:layout_constraintTop_toBottomOf="@id/home_banner_iv"
+       app:layout_constraintTop_toBottomOf="@id/home_banner_vp"
        app:layout_constraintStart_toStartOf="parent" />
    <HorizontalScrollView
        android:id="@+id/home_potcastrea_v"
