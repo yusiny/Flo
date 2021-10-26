@@ -9,15 +9,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Flotemplate">
-        <activity android:name="com.example.flo.MainActivity">
-            <!--main activity에 현재 상태
-            //activity로 intent-filter 파일이 옮겨가며 화면 전환 -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".SplashActivity">
+        <!--splash activity에 현재 상태
+        //activity로 intent-filter 파일이 옮겨가며 화면 전환 -->
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
+
+        <activity android:name="com.example.flo.MainActivity" />
         <activity android:name="com.example.flo.SongActivity" />
     </application>
 

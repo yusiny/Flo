@@ -16,12 +16,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //song class에 main activity 미니플레이어 song 정보 전달
-        val song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString())
+        //val song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString())
+        val song = Song("라일락","아이유(IU)", 215, false)
 
 
         var playingStatus : Int = 0
-        if(intent.hasExtra("playing")){
-            playingStatus = intent.getIntExtra("playing", 0)
+        if(intent.hasExtra("isPlaying")){
+            playingStatus = intent.getIntExtra("isPlaying", 0)
         }
         if(playingStatus == 1){
             playbarStatus(1)
@@ -43,7 +44,9 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, SongActivity::class.java)
             intent.putExtra("title", song.title)
             intent.putExtra("singer", song.singer)
-            intent.putExtra("playing", playingStatus)
+            intent.putExtra("playTime", song.playTime)
+            //intent.putExtra("playing", playingStatus)
+            intent.putExtra("isPlaying", song.isPlaying)
             startActivity(intent)
         }
 

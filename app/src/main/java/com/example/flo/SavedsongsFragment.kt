@@ -5,20 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.flo.databinding.FragmentDetailBinding
+import com.example.flo.databinding.FragmentSavedsongsBinding
 
-class DetailFragment: Fragment() {
-    lateinit var binding: FragmentDetailBinding
+class SavedsongsFragment: Fragment() {
+    lateinit var binding: FragmentSavedsongsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDetailBinding.inflate(inflater, container, false)
-
-        binding.detailAlbumInfoTv.isSelected;
-
+        binding = FragmentSavedsongsBinding.inflate(inflater, container, false)
         return binding.root
     }
 }
+
+
