@@ -6,9 +6,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivitySongBinding
+import kotlin.properties.Delegates
 
 class SongActivity : AppCompatActivity() {
     //정방 선언(선 선언, 후 초기화) "선언하고 나중에 꼭 초기화 해 줄게!"
@@ -19,6 +21,8 @@ class SongActivity : AppCompatActivity() {
     private lateinit var player: Player
     //private val handler = Handler(Looper.getMainLooper())
 
+   var isRepeat: Boolean = false
+   var changedFromUser: Boolean = false
     //activity 생성 시, 처음으로 실행되는 함수
     //override 함수: 클래스서 상속받아 사용
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,20 +36,52 @@ class SongActivity : AppCompatActivity() {
         //root: activity_song의 최상단
         setContentView(binding.root)
 
+        //seekBar은 XML 태그 <SeekBar>의 id값
+        binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                song.currentTime = progress.toInt()
+                changedFromUser = fromUser
+            }
 
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+
+
+        //MainActivity에서 받아온 내용으로 Song
         initSong()
 
         //thread 초기화 후 시작 명령
-        player = Player(song.playTime, song.isPlaying)
+        player = Player(song.playTime, song.currentTime, song.isPlaying)
         player.start()
         //player.interrupt() //과부화를 막기 위해 쓰레드 강제 종료
 
-        //down 버튼 클릭 시, 이벤트
+        //down 버튼 클릭 시, 액티비티 종료
         var playingStatus : Int = 0
         binding.songBtnDownIv.setOnClickListener{
             var intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("isPlaying", playingStatus)
+            intent.putExtra("isPlaying",song.isPlaying)
             startActivity(intent)
+        }
+
+
+
+        //player 버튼 상태 조작
+        if(!song.isPlaying){
+            setPlayerStatus(true)
+        }else if(song.isPlaying){
+            setPlayerStatus(false)
+        }
+        binding.songBtnPlayIv.setOnClickListener{
+            setPlayerStatus(false)
+            player.isPlaying = true
+        }
+        binding.songBtnPauseIv.setOnClickListener{
+           setPlayerStatus(true)
+            player.isPlaying = false
         }
 
         //like, unlike 버튼 상태 조작
@@ -62,27 +98,6 @@ class SongActivity : AppCompatActivity() {
             setUnlikeStatus(false)
         }
 
-        //player 버튼 상태 조작
-        if(intent.hasExtra("isPlaying")){
-            playingStatus = intent.getIntExtra("isPlaying", 0)
-        }
-        if(playingStatus == 1){
-            setPlayerStatus(false)
-        }else if(playingStatus == 0){
-            setPlayerStatus(true)
-        }
-        binding.songBtnPlayIv.setOnClickListener{
-            setPlayerStatus(false)
-            playingStatus = 1
-            player.isPlaying = true
-        }
-        binding.songBtnPauseIv.setOnClickListener{
-           setPlayerStatus(true)
-            playingStatus = 0
-            player.isPlaying = false
-        }
-
-
         //repeat 버튼 상태 조작
         binding.songBtnRepeatOffIv.setOnClickListener {
             setRepeatStatus(0)
@@ -91,6 +106,7 @@ class SongActivity : AppCompatActivity() {
         binding.songBtnRepeatOnIv.setOnClickListener {
             setRepeatStatus(1)
             Toast.makeText(this, "현재 음악을 반복합니다.", Toast.LENGTH_SHORT).show()
+
         }
         binding.songBtnRepeatOn1Iv.setOnClickListener {
             setRepeatStatus(2)
@@ -111,10 +127,11 @@ class SongActivity : AppCompatActivity() {
 
     private fun initSong(){
         //택배를 받았다면?
-        if(intent.hasExtra("title") && intent.hasExtra("singer") && intent.hasExtra("playTime") && intent.hasExtra("isPlaying")){
+        if(intent.hasExtra("title") && intent.hasExtra("singer") && intent.hasExtra("playTime") && intent.hasExtra("currentTime") && intent.hasExtra("isPlaying")){
             song.title = intent.getStringExtra("title")!!
             song.singer = intent.getStringExtra("singer")!!
             song.playTime = intent.getIntExtra("playTime", 0)
+            song.currentTime = intent.getIntExtra("currentTime", 0)
             song.isPlaying = intent.getBooleanExtra("isPlaying", false)
 
             binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
@@ -137,12 +154,15 @@ class SongActivity : AppCompatActivity() {
         if(isRepeating == 0){
             binding.songBtnRepeatOffIv.visibility = View.GONE
             binding.songBtnRepeatOnIv.visibility = View.VISIBLE
+            isRepeat = false
         }else if(isRepeating == 1){
             binding.songBtnRepeatOnIv.visibility = View.GONE
             binding.songBtnRepeatOn1Iv.visibility = View.VISIBLE
+            isRepeat = true
         }else if(isRepeating == 2){
             binding.songBtnRepeatOn1Iv.visibility = View.GONE
             binding.songBtnRepeatOffIv.visibility = View.VISIBLE
+            isRepeat = false
         }
     }
 
@@ -178,7 +198,7 @@ class SongActivity : AppCompatActivity() {
 
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
-    inner class Player(private val playTime:Int, var isPlaying: Boolean) : Thread(){
+    inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
         private var second = 0 //쓰레드 내에서 활용할 타이머
 
         //player.start()로 쓰레드를 시작하면, run이 실행됨
@@ -189,9 +209,16 @@ class SongActivity : AppCompatActivity() {
             try{
                 //쓰레드 실행
                 while(true){
+                    //시크바를 사용자가 조정하면 이를 반영
+                    if(changedFromUser){
+                        second = song.currentTime
+                    }
                     //노래 시간을 넘어가면 종료시킴
-                    if(second >= playTime) break
-                    //플레이 중에만 타이머 go and go
+                    if(second >= playTime) {
+                        if(isRepeat) second = 0
+                        else break
+                    }
+                    //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
                         second ++

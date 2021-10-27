@@ -17,8 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         //song class에 main activity 미니플레이어 song 정보 전달
         //val song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString())
-        val song = Song("라일락","아이유(IU)", 215, false)
-
+        val song = Song("라일락","아이유(IU)", 30, 0,false)
 
         var playingStatus : Int = 0
         if(intent.hasExtra("isPlaying")){
@@ -45,6 +44,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("title", song.title)
             intent.putExtra("singer", song.singer)
             intent.putExtra("playTime", song.playTime)
+            intent.putExtra("currentTime", song.currentTime)
             //intent.putExtra("playing", playingStatus)
             intent.putExtra("isPlaying", song.isPlaying)
             startActivity(intent)
