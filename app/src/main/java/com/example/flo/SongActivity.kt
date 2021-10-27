@@ -21,8 +21,9 @@ class SongActivity : AppCompatActivity() {
     private lateinit var player: Player
     //private val handler = Handler(Looper.getMainLooper())
 
-   var isRepeat: Boolean = false
-   var changedFromUser: Boolean = false
+     var isRepeat: Boolean = false
+     var changedFromUser: Boolean = false
+
     //activity 생성 시, 처음으로 실행되는 함수
     //override 함수: 클래스서 상속받아 사용
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,21 +37,6 @@ class SongActivity : AppCompatActivity() {
         //root: activity_song의 최상단
         setContentView(binding.root)
 
-        //seekBar은 XML 태그 <SeekBar>의 id값
-        binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                song.currentTime = progress.toInt()
-                changedFromUser = fromUser
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-        })
-
-
         //MainActivity에서 받아온 내용으로 Song
         initSong()
 
@@ -60,27 +46,41 @@ class SongActivity : AppCompatActivity() {
         //player.interrupt() //과부화를 막기 위해 쓰레드 강제 종료
 
         //down 버튼 클릭 시, 액티비티 종료
-        var playingStatus : Int = 0
         binding.songBtnDownIv.setOnClickListener{
             var intent = Intent(this, MainActivity::class.java)
             intent.putExtra("isPlaying",song.isPlaying)
+            intent.putExtra("playTime", song.playTime)
+            intent.putExtra("currentTime", song.currentTime)
+            intent.putExtra("isRepeated", isRepeat)
             startActivity(intent)
         }
 
+        //seekBar 이벤트 리스너
+//        binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                song.currentTime = song.playTime/1000 * progress.toInt()
+//                changedFromUser = fromUser
+//            }
+//
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+//        })
 
 
         //player 버튼 상태 조작
-        if(!song.isPlaying){
+        if(song.isPlaying){
             setPlayerStatus(true)
         }else if(song.isPlaying){
             setPlayerStatus(false)
         }
         binding.songBtnPlayIv.setOnClickListener{
-            setPlayerStatus(false)
+            setPlayerStatus(true)
+            song.isPlaying = true
             player.isPlaying = true
         }
         binding.songBtnPauseIv.setOnClickListener{
-           setPlayerStatus(true)
+           setPlayerStatus(false)
+            song.isPlaying = false
             player.isPlaying = false
         }
 
@@ -99,6 +99,7 @@ class SongActivity : AppCompatActivity() {
         }
 
         //repeat 버튼 상태 조작
+        if(isRepeat) setRepeatStatus(1)
         binding.songBtnRepeatOffIv.setOnClickListener {
             setRepeatStatus(0)
             Toast.makeText(this, "전체 음악을 반복합니다.", Toast.LENGTH_SHORT).show()
@@ -133,6 +134,7 @@ class SongActivity : AppCompatActivity() {
             song.playTime = intent.getIntExtra("playTime", 0)
             song.currentTime = intent.getIntExtra("currentTime", 0)
             song.isPlaying = intent.getBooleanExtra("isPlaying", false)
+            isRepeat = intent.getBooleanExtra("isRepeated", false)
 
             binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
             binding.songAlbumTitleTv.text = intent.getStringExtra("title")
@@ -142,11 +144,11 @@ class SongActivity : AppCompatActivity() {
 
     fun setPlayerStatus(isPlaying:Boolean){
         if(isPlaying){
-            binding.songBtnPlayIv.visibility = View.VISIBLE
-            binding.songBtnPauseIv.visibility = View.GONE
-        }else{
             binding.songBtnPlayIv.visibility = View.GONE
             binding.songBtnPauseIv.visibility = View.VISIBLE
+        }else{
+            binding.songBtnPlayIv.visibility = View.VISIBLE
+            binding.songBtnPauseIv.visibility = View.GONE
         }
     }
 
@@ -154,14 +156,17 @@ class SongActivity : AppCompatActivity() {
         if(isRepeating == 0){
             binding.songBtnRepeatOffIv.visibility = View.GONE
             binding.songBtnRepeatOnIv.visibility = View.VISIBLE
+            binding.songBtnRepeatOn1Iv.visibility = View.GONE
             isRepeat = false
         }else if(isRepeating == 1){
+            binding.songBtnRepeatOffIv.visibility = View.GONE
             binding.songBtnRepeatOnIv.visibility = View.GONE
             binding.songBtnRepeatOn1Iv.visibility = View.VISIBLE
             isRepeat = true
         }else if(isRepeating == 2){
-            binding.songBtnRepeatOn1Iv.visibility = View.GONE
             binding.songBtnRepeatOffIv.visibility = View.VISIBLE
+            binding.songBtnRepeatOnIv.visibility = View.GONE
+            binding.songBtnRepeatOn1Iv.visibility = View.GONE
             isRepeat = false
         }
     }
@@ -207,22 +212,23 @@ class SongActivity : AppCompatActivity() {
             //try 코드 내에서 오류가 난다면
             //catch InterreuptedExpection 오류를 발견한다면
             try{
+                if(currentTime!=0) second = song.currentTime
                 //쓰레드 실행
                 while(true){
-                    //시크바를 사용자가 조정하면 이를 반영
-                    if(changedFromUser){
-                        second = song.currentTime
-                    }
                     //노래 시간을 넘어가면 종료시킴
-                    if(second >= playTime) {
+                    if(second > playTime) {
                         if(isRepeat) second = 0
                         else break
                     }
                     //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
+                        //시크바를 사용자가 조정하면 이를 반영
+//                        if(changedFromUser){
+//                            second = song.currentTime
+//                            changedFromUser = false
+//                        }
                         second ++
-
 //                handler.post {
 //                    binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second / 60, second % 60)
 //                }
@@ -231,6 +237,7 @@ class SongActivity : AppCompatActivity() {
                             binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second / 60, second % 60)
                         }
                     }
+                    song.currentTime = second
                 }
             }catch(e : InterruptedException){
                 Log.d("interrupt", "쓰레드가 종료되었습니다.")
