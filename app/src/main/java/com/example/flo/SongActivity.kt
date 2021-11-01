@@ -1,6 +1,7 @@
 package com.example.flo
 
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +11,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivitySongBinding
+import com.google.gson.Gson
 import kotlin.properties.Delegates
 
 class SongActivity : AppCompatActivity() {
@@ -21,8 +23,14 @@ class SongActivity : AppCompatActivity() {
     private lateinit var player: Player
     //private val handler = Handler(Looper.getMainLooper())
 
+    //미디어 플레이어
+    private var mediaPlayer: MediaPlayer? = null
+
      var isRepeat: Boolean = false
-     var changedFromUser: Boolean = false
+     //var changedFromUser: Boolean = false
+
+    //Gson
+    private var gson: Gson = Gson()
 
     //activity 생성 시, 처음으로 실행되는 함수
     //override 함수: 클래스서 상속받아 사용
@@ -48,6 +56,7 @@ class SongActivity : AppCompatActivity() {
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
             var intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("music", song.music)
             intent.putExtra("isPlaying",song.isPlaying)
             intent.putExtra("playTime", song.playTime)
             intent.putExtra("currentTime", song.currentTime)
@@ -77,11 +86,13 @@ class SongActivity : AppCompatActivity() {
             setPlayerStatus(true)
             song.isPlaying = true
             player.isPlaying = true
+            mediaPlayer?.start()
         }
         binding.songBtnPauseIv.setOnClickListener{
            setPlayerStatus(false)
             song.isPlaying = false
             player.isPlaying = false
+            mediaPlayer?.pause()
         }
 
         //like, unlike 버튼 상태 조작
@@ -128,13 +139,18 @@ class SongActivity : AppCompatActivity() {
 
     private fun initSong(){
         //택배를 받았다면?
-        if(intent.hasExtra("title") && intent.hasExtra("singer") && intent.hasExtra("playTime") && intent.hasExtra("currentTime") && intent.hasExtra("isPlaying")){
+        if(intent.hasExtra("title") && intent.hasExtra("singer") && intent.hasExtra("music") && intent.hasExtra("playTime") && intent.hasExtra("currentTime") && intent.hasExtra("isPlaying")){
             song.title = intent.getStringExtra("title")!!
             song.singer = intent.getStringExtra("singer")!!
+            song.music = intent.getStringExtra("music")!!
             song.playTime = intent.getIntExtra("playTime", 0)
             song.currentTime = intent.getIntExtra("currentTime", 0)
             song.isPlaying = intent.getBooleanExtra("isPlaying", false)
             isRepeat = intent.getBooleanExtra("isRepeated", false)
+
+            //mediaPlayer 연결해 주기
+            val music = resources.getIdentifier(song.music, "raw", this.packageName)
+            mediaPlayer = MediaPlayer.create(this, music)
 
             binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
             binding.songAlbumTitleTv.text = intent.getStringExtra("title")
@@ -216,10 +232,11 @@ class SongActivity : AppCompatActivity() {
                 //쓰레드 실행
                 while(true){
                     //노래 시간을 넘어가면 종료시킴
-                    if(second > playTime) {
+                    if(second >= playTime) {
                         if(isRepeat) second = 0
                         else break
                     }
+
                     //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
@@ -246,9 +263,29 @@ class SongActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.pause() // 미디어 플레이어 중지
+        player.isPlaying = false // 스레드 중지
+        song.isPlaying = false
+        song.currentTime = binding.songPlayProgressPv.progress * song.playTime / 1000 // 현재 시간 기록
+        setPlayerStatus(false) // 버튼 이미지 변경
+
+        //sharedPreferences
+        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
+        val editor = sharedPreferences.edit() //sharedPreferences 조작 시 사용
+
+        //Gson 이용 데이터 변환
+        val json = gson.toJson(song)
+        editor.putString("song", json)
+    }
+
     //화면이 꺼질 떄 자동으로 불리는 함수
     override fun onDestroy(){
-        player.interrupt() //화면 꺼질 때 => 쓰레드 자동 종료
         super.onDestroy()
+        player.interrupt() // 스레드 종료
+        mediaPlayer?.release() // 미디어 플레이어 종료
+        mediaPlayer = null
     }
 }
+

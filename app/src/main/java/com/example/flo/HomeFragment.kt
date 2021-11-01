@@ -1,6 +1,8 @@
 package com.example.flo
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,12 @@ import com.google.android.material.tabs.TabLayoutMediator
 class HomeFragment : Fragment() {
     lateinit var binding: FragmentHomeBinding
 
+    private lateinit var autopager: AutoPager //메인배너를 위한 스레드
+    private val handler = Handler(Looper.getMainLooper()){
+        setPage()
+        true
+    }
+    var currentPosition:Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,6 +37,8 @@ class HomeFragment : Fragment() {
                 .replace(R.id.main_frm, AlbumFragment()) //main fragment에서 album fragment로
                 .commitAllowingStateLoss()
         }
+
+
 
         //Viewpager를 위한 adapter 가져오기
         val bannerAdapter = BannerViewpagerAdapter(this)
@@ -53,12 +63,40 @@ class HomeFragment : Fragment() {
         binding.homeMainbannerVp.adapter = mainbannerAdapter
         binding.homeMainbannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
 
+        //메인배너를 위한 스레드
+        autopager = AutoPager()
+        autopager.start()
+
         //메인 배너 indicater를 tablayout 연결하기
         TabLayoutMediator(binding.homeMainbannerTb, binding.homeMainbannerVp){
             tab, position->
             //Some implementation
         }.attach()
         return binding.root
+    }
+
+    //메인배너 자동 스크롤을 위한 setPage 함수
+    fun setPage(){
+        if(currentPosition == 3) currentPosition = 0
+        binding.homeMainbannerVp.setCurrentItem(currentPosition, true)
+        currentPosition ++
+    }
+
+    //메인배너를 위한 스레드
+    inner class AutoPager(): Thread(){
+        override fun run() {
+            try {
+                while(true){
+                    sleep(2000)
+                    handler.sendEmptyMessageAtTime(0, 2000)
+                }
+            }catch (e: InterruptedException){}
+        }
+    }
+
+    override fun onDestroy() {
+        autopager.interrupt()
+        super.onDestroy()
     }
 
 }
