@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 
         //시크바 현재 progress SongActivity와 동기화
         if(song.currentTime!=0){
-        binding.mainMiniplayerSb.progress = 1000/song.playTime * song.currentTime
+            binding.mainMiniplayerSb.progress = 1000/song.playTime * song.currentTime
         }
 
         //SongActivity와 플레이 버튼 상태 동기화

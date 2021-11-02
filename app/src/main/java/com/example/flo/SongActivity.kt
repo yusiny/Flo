@@ -52,7 +52,7 @@ class SongActivity : AppCompatActivity() {
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
-            song.currentTime = mediaPlayer?.currentPosition!!
+            //song.currentTime = mediaPlayer?.currentPosition!!
             val json = gson.toJson(song)
             intent.putExtra("song", json)
             startActivity(intent)
@@ -140,6 +140,7 @@ class SongActivity : AppCompatActivity() {
             binding.songAlbumTitleTv.text = song.title
             binding.songAlbumSingerTv.text = song.singer
         }
+
     }
 
     fun setPlayerStatus(isPlaying:Boolean){
@@ -148,11 +149,13 @@ class SongActivity : AppCompatActivity() {
             binding.songBtnPauseIv.visibility = View.VISIBLE
             player.isPlaying = true
             mediaPlayer?.start()
+            mediaPlayer?.seekTo(song.currentTime * 1000)
         }else{
             binding.songBtnPlayIv.visibility = View.VISIBLE
             binding.songBtnPauseIv.visibility = View.GONE
             player.isPlaying = false
             mediaPlayer?.pause()
+            song.currentTime = binding.songPlayProgressPv.progress / 1000
         }
     }
 
@@ -208,18 +211,17 @@ class SongActivity : AppCompatActivity() {
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
     inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
-
         override fun run(){
             //강제 종료 위한 try catch
             try{
                 //쓰레드 실행
                 while(true){
-                    //노래 시간을 넘어가면 종료시킴
-                    if(binding.songPlayProgressPv.progress / 1000 >= playTime) {
-                        if(song.isRepeated) {
-//
+
+                    //반복 재생
+                    if(!mediaPlayer?.isPlaying!!) {
+                        if(song.isRepeated && song.isPlaying) {
+                            setPlayerStatus(true)
                         }
-                        else break
                     }
 
                     //플레이 중에만 타이머 go
@@ -227,8 +229,8 @@ class SongActivity : AppCompatActivity() {
                         sleep(1000)
                         runOnUiThread{
                             binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
-                            currentTime = binding.songPlayProgressPv.progress / 1000
-                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d",currentTime/ 60,currentTime % 60)
+                            song.currentTime = binding.songPlayProgressPv.progress / 1000
+                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d",song.currentTime/ 60, song.currentTime % 60)
                         }
                     }
                 }
@@ -244,7 +246,8 @@ class SongActivity : AppCompatActivity() {
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
         song.isPlaying = false
-        song.currentTime = binding.songPlayProgressPv.progress * song.playTime / 1000 // 현재 시간 기록
+        //song.currentTime = binding.songPlayProgressPv.progress * song.playTime / 1000 // 현재 시간 기록
+        song.currentTime = binding.songPlayProgressPv.progress / 1000
         setPlayerStatus(false) // 버튼 이미지 변경
 
         //sharedPreferences
