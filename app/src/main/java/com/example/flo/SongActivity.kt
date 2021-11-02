@@ -26,9 +26,6 @@ class SongActivity : AppCompatActivity() {
     //미디어 플레이어
     private var mediaPlayer: MediaPlayer? = null
 
-     var isRepeat: Boolean = false
-     var changedFromUser: Boolean = false
-
     //Gson
     private var gson: Gson = Gson()
 
@@ -67,7 +64,7 @@ class SongActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(fromUser) {
                     mediaPlayer?.seekTo(progress)
-                    song.currentTime = progress
+                    player.currentTime = progress / 1000
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -105,7 +102,7 @@ class SongActivity : AppCompatActivity() {
         }
 
         //repeat 버튼 상태 조작
-        if(isRepeat) setRepeatStatus(1)
+        if(song.isRepeated) setRepeatStatus(1)
         binding.songBtnRepeatOffIv.setOnClickListener {
             setRepeatStatus(0)
             Toast.makeText(this, "전체 음악을 반복합니다.", Toast.LENGTH_SHORT).show()
@@ -164,17 +161,17 @@ class SongActivity : AppCompatActivity() {
             binding.songBtnRepeatOffIv.visibility = View.GONE
             binding.songBtnRepeatOnIv.visibility = View.VISIBLE
             binding.songBtnRepeatOn1Iv.visibility = View.GONE
-            isRepeat = false
+            song.isRepeated = false
         }else if(isRepeating == 1){
             binding.songBtnRepeatOffIv.visibility = View.GONE
             binding.songBtnRepeatOnIv.visibility = View.GONE
             binding.songBtnRepeatOn1Iv.visibility = View.VISIBLE
-            isRepeat = true
+            song.isRepeated = true
         }else if(isRepeating == 2){
             binding.songBtnRepeatOffIv.visibility = View.VISIBLE
             binding.songBtnRepeatOnIv.visibility = View.GONE
             binding.songBtnRepeatOn1Iv.visibility = View.GONE
-            isRepeat = false
+            song.isRepeated = false
         }
     }
 
@@ -211,29 +208,27 @@ class SongActivity : AppCompatActivity() {
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
     inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
-        private var second = mediaPlayer?.currentPosition!! //쓰레드 내에서 활용할 타이머
 
-        //player.start()로 쓰레드를 시작하면, run이 실행됨
         override fun run(){
             //강제 종료 위한 try catch
-            //try 코드 내에서 오류가 난다면
-            //catch InterreuptedExpection 오류를 발견한다면
             try{
                 //쓰레드 실행
                 while(true){
                     //노래 시간을 넘어가면 종료시킴
-                    if(second >= playTime) {
-                        if(isRepeat) second = 0
+                    if(binding.songPlayProgressPv.progress / 1000 >= playTime) {
+                        if(song.isRepeated) {
+//
+                        }
                         else break
                     }
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
-                        second++
                         runOnUiThread{
                             binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
-                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second/ 60, second % 60)
+                            currentTime = binding.songPlayProgressPv.progress / 1000
+                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d",currentTime/ 60,currentTime % 60)
                         }
                     }
                 }
