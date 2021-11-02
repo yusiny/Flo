@@ -19,11 +19,9 @@ class MainActivity : AppCompatActivity() {
     //Song 객체
     private var song:Song = Song()
 
-    //repeat 체크 변수
-    private var isRepeat: Boolean = false
 
     //Player 스레드
-    private lateinit var player: Player //시크바를 위한 스레드
+    private lateinit var player: Player
 
     //Gson
     private var gson:Gson = Gson()
@@ -34,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //player seekbar를 위한 스레드
-        player = Player(song.playTime, song.currentTime, song.isPlaying)
+        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
         player.start()
 
         setMiniPlayer()
@@ -54,14 +52,9 @@ class MainActivity : AppCompatActivity() {
             //startActivity(Intent(this, SongActivity::class.java))
 
             val intent = Intent(this, SongActivity::class.java)
-            intent.putExtra("title", song.title)
-            intent.putExtra("singer", song.singer)
-            intent.putExtra("music", song.music)
-            intent.putExtra("playTime", song.playTime)
-            intent.putExtra("currentTime", song.currentTime)
-            //intent.putExtra("playing", playingStatus)
-            intent.putExtra("isPlaying", song.isPlaying)
-            intent.putExtra("isRepeated", isRepeat)
+            val json = gson.toJson(song)
+            intent.putExtra("song", json)
+
             startActivity(intent)
         }
 
@@ -114,12 +107,8 @@ class MainActivity : AppCompatActivity() {
     fun setMiniPlayer(){
 
         //SongActivity에서 전달받은 데이터 저장
-        if(intent.hasExtra("music")&& intent.hasExtra("playTime") && intent.hasExtra("isPlaying") && intent.hasExtra("currentTime") && intent.hasExtra("isRepeated")){
-            song.music = intent.getStringExtra("music")!!
-            song.playTime = intent.getIntExtra("playTime", 0)
-            song.isPlaying = intent.getBooleanExtra("isPlaying", false)
-            song.currentTime = intent.getIntExtra("currentTime", 0)
-            isRepeat = intent.getBooleanExtra("isRepeated", false)
+        if(intent.hasExtra("song")){
+            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
         }
 
         //시크바 현재 progress SongActivity와 동기화
@@ -146,7 +135,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //seekbar 스레드를 위한 객체
-    inner class Player(private val playTime:Int, var currentTime:Int,var isPlaying: Boolean): Thread(){
+    inner class Player(private val playTime:Int, var currentTime:Int,var isPlaying: Boolean, var isRepeat: Boolean): Thread(){
         private var second = 0
 
         //player.start()로 스레드를 시작하면, run이 실행됨
@@ -184,7 +173,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val jsonSong = sharedPreferences.getString("song", null)
         song = if(jsonSong == null){
-            Song("라일락","아이유(IU)", "music_lilac", 215, 0,false )
+            Song("라일락","아이유(IU)", "music_lilac", 215, 0,false, false )
         }else{
             gson.fromJson(jsonSong, Song::class.java)
         }

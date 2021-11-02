@@ -19,7 +19,7 @@ class SongActivity : AppCompatActivity() {
     //전역변수
     lateinit var binding : ActivitySongBinding
 
-    private val song: Song = Song()
+    private var song: Song = Song()
     private lateinit var player: Player
     //private val handler = Handler(Looper.getMainLooper())
 
@@ -56,11 +56,13 @@ class SongActivity : AppCompatActivity() {
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
             var intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("music", song.music)
-            intent.putExtra("isPlaying",song.isPlaying)
-            intent.putExtra("playTime", song.playTime)
-            intent.putExtra("currentTime", song.currentTime)
-            intent.putExtra("isRepeated", isRepeat)
+//            intent.putExtra("music", song.music)
+//            intent.putExtra("isPlaying",song.isPlaying)
+//            intent.putExtra("playTime", song.playTime)
+//            intent.putExtra("currentTime", song.currentTime)
+//            intent.putExtra("isRepeated", isRepeat)
+            val json = gson.toJson(song)
+            intent.putExtra("song", json)
             startActivity(intent)
         }
 
@@ -138,23 +140,15 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun initSong(){
-        //택배를 받았다면?
-        if(intent.hasExtra("title") && intent.hasExtra("singer") && intent.hasExtra("music") && intent.hasExtra("playTime") && intent.hasExtra("currentTime") && intent.hasExtra("isPlaying")){
-            song.title = intent.getStringExtra("title")!!
-            song.singer = intent.getStringExtra("singer")!!
-            song.music = intent.getStringExtra("music")!!
-            song.playTime = intent.getIntExtra("playTime", 0)
-            song.currentTime = intent.getIntExtra("currentTime", 0)
-            song.isPlaying = intent.getBooleanExtra("isPlaying", false)
-            isRepeat = intent.getBooleanExtra("isRepeated", false)
+        if(intent.hasExtra("song")){
+            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
 
             //mediaPlayer 연결해 주기
             val music = resources.getIdentifier(song.music, "raw", this.packageName)
             mediaPlayer = MediaPlayer.create(this, music)
-
             binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
-            binding.songAlbumTitleTv.text = intent.getStringExtra("title")
-            binding.songAlbumSingerTv.text = intent.getStringExtra("singer")
+            binding.songAlbumTitleTv.text = song.title
+            binding.songAlbumSingerTv.text = song.singer
         }
     }
 

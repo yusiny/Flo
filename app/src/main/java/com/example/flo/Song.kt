@@ -8,4 +8,5 @@ data class Song(
     var playTime:Int = 0,
     var currentTime: Int = 0,
     var isPlaying:Boolean = false,
+    var isRepeated:Boolean = false,
 )
