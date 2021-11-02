@@ -27,7 +27,7 @@ class SongActivity : AppCompatActivity() {
     private var mediaPlayer: MediaPlayer? = null
 
      var isRepeat: Boolean = false
-     //var changedFromUser: Boolean = false
+     var changedFromUser: Boolean = false
 
     //Gson
     private var gson: Gson = Gson()
@@ -51,31 +51,28 @@ class SongActivity : AppCompatActivity() {
         //thread 초기화 후 시작 명령
         player = Player(song.playTime, song.currentTime, song.isPlaying)
         player.start()
-        //player.interrupt() //과부화를 막기 위해 쓰레드 강제 종료
 
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
-            var intent = Intent(this, MainActivity::class.java)
-//            intent.putExtra("music", song.music)
-//            intent.putExtra("isPlaying",song.isPlaying)
-//            intent.putExtra("playTime", song.playTime)
-//            intent.putExtra("currentTime", song.currentTime)
-//            intent.putExtra("isRepeated", isRepeat)
+            val intent = Intent(this, MainActivity::class.java)
+            song.currentTime = mediaPlayer?.currentPosition!!
             val json = gson.toJson(song)
             intent.putExtra("song", json)
             startActivity(intent)
         }
 
         //seekBar 이벤트 리스너
-//        binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-//                song.currentTime = song.playTime/1000 * progress.toInt()
-//                changedFromUser = fromUser
-//            }
-//
-//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-//            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-//        })
+        binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
+        binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if(fromUser) {
+                    mediaPlayer?.seekTo(progress)
+                    song.currentTime = progress
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
 
 
         //player 버튼 상태 조작
@@ -87,14 +84,10 @@ class SongActivity : AppCompatActivity() {
         binding.songBtnPlayIv.setOnClickListener{
             setPlayerStatus(true)
             song.isPlaying = true
-            player.isPlaying = true
-            mediaPlayer?.start()
         }
         binding.songBtnPauseIv.setOnClickListener{
            setPlayerStatus(false)
             song.isPlaying = false
-            player.isPlaying = false
-            mediaPlayer?.pause()
         }
 
         //like, unlike 버튼 상태 조작
@@ -156,9 +149,13 @@ class SongActivity : AppCompatActivity() {
         if(isPlaying){
             binding.songBtnPlayIv.visibility = View.GONE
             binding.songBtnPauseIv.visibility = View.VISIBLE
+            player.isPlaying = true
+            mediaPlayer?.start()
         }else{
             binding.songBtnPlayIv.visibility = View.VISIBLE
             binding.songBtnPauseIv.visibility = View.GONE
+            player.isPlaying = false
+            mediaPlayer?.pause()
         }
     }
 
@@ -214,7 +211,7 @@ class SongActivity : AppCompatActivity() {
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
     inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
-        private var second = 0 //쓰레드 내에서 활용할 타이머
+        private var second = mediaPlayer?.currentPosition!! //쓰레드 내에서 활용할 타이머
 
         //player.start()로 쓰레드를 시작하면, run이 실행됨
         override fun run(){
@@ -222,7 +219,6 @@ class SongActivity : AppCompatActivity() {
             //try 코드 내에서 오류가 난다면
             //catch InterreuptedExpection 오류를 발견한다면
             try{
-                if(currentTime!=0) second = song.currentTime
                 //쓰레드 실행
                 while(true){
                     //노래 시간을 넘어가면 종료시킴
@@ -234,21 +230,12 @@ class SongActivity : AppCompatActivity() {
                     //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
-                        //시크바를 사용자가 조정하면 이를 반영
-//                        if(changedFromUser){
-//                            second = song.currentTime
-//                            changedFromUser = false
-//                        }
-                        second ++
-//                handler.post {
-//                    binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second / 60, second % 60)
-//                }
+                        second++
                         runOnUiThread{
-                            binding.songPlayProgressPv.progress = second*1000/playTime
-                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second / 60, second % 60)
+                            binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
+                            binding.songPlayProgressStartTv.text = String.format("%02d:%02d", second/ 60, second % 60)
                         }
                     }
-                    song.currentTime = second
                 }
             }catch(e : InterruptedException){
                 Log.d("interrupt", "쓰레드가 종료되었습니다.")
@@ -268,6 +255,7 @@ class SongActivity : AppCompatActivity() {
         //sharedPreferences
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val editor = sharedPreferences.edit() //sharedPreferences 조작 시 사용
+        editor.apply()
 
         //Gson 이용 데이터 변환
         val json = gson.toJson(song)
