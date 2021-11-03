@@ -137,6 +137,15 @@ class SongActivity : AppCompatActivity() {
         //thread 초기화 후 시작 명령
         player = Player(song.currentTime, song.isPlaying, song.isRepeated)
         player.start()
+
+        if(song.isPlaying){
+            setPlayerStatus(true)
+            mediaPlayer?.start()
+            player.isPlaying = true
+        }else{
+            setPlayerStatus(false)
+            player.isPlaying = false
+        }
     }
 
     private fun initSong(){
@@ -157,12 +166,12 @@ class SongActivity : AppCompatActivity() {
         if(isPlaying){
             binding.songBtnPlayIv.visibility = View.GONE
             binding.songBtnPauseIv.visibility = View.VISIBLE
-            player.isPlaying = true
+            //player.isPlaying = true
             //mediaPlayer?.start()
         }else{
             binding.songBtnPlayIv.visibility = View.VISIBLE
             binding.songBtnPauseIv.visibility = View.GONE
-            player.isPlaying = false
+            //player.isPlaying = false
             //mediaPlayer?.pause()
             song.currentTime = binding.songPlayProgressPv.progress / 1000
         }
@@ -255,10 +264,10 @@ class SongActivity : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
-        song.isPlaying = false
+        //song.isPlaying = false
         //song.currentTime = binding.songPlayProgressPv.progress * song.playTime / 1000 // 현재 시간 기록
         song.currentTime = binding.songPlayProgressPv.progress / 1000
-        setPlayerStatus(false) // 버튼 이미지 변경
+        //setPlayerStatus(false) // 버튼 이미지 변경
 
         //sharedPreferences
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)

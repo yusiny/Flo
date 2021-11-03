@@ -213,8 +213,7 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        song.isPlaying = false
-        song.isPlaying = false
+        //song.isPlaying = false
         player.interrupt() // 스레드 종료
         mediaPlayer?.release() // 미디어 플레이어 종료
         mediaPlayer = null
