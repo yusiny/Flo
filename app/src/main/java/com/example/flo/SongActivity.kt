@@ -152,7 +152,6 @@ class SongActivity : AppCompatActivity() {
         //mediaPlayer 연결해 주기
         val music = resources.getIdentifier(song.music, "raw", this.packageName)
         mediaPlayer = MediaPlayer.create(this, music)
-        mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
         mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!)
