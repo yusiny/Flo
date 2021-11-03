@@ -237,7 +237,7 @@ class SongActivity : AppCompatActivity() {
                 while(true){
 
 //                    //반복 재생
-//                    if(mediaPlayer?.isPlaying!! && isRepeat){
+//                    if(isRepeat){
 //                        mediaPlayer?.setLooping(true)
 //                    }else{
 //                        mediaPlayer?.setLooping(false)
