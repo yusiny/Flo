@@ -169,12 +169,12 @@ class MainActivity : AppCompatActivity() {
                 //쓰레드 실행
                 while(true){
 
-                    //반복 재생
-                    if(isRepeat){
-                        mediaPlayer?.setLooping(true)
-                    }else{
-                        mediaPlayer?.setLooping(false)
-                    }
+//                    //반복 재생
+//                    if(isRepeat){
+//                        mediaPlayer?.setLooping(true)
+//                    }else{
+//                        mediaPlayer?.setLooping(false)
+//                    }
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
@@ -200,7 +200,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-
+        mediaPlayer?.pause() // 미디어 플레이어 중지
+        player.isPlaying = false // 스레드 중지
         //SP
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -210,8 +211,10 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
     override fun onDestroy() {
-        player.interrupt()
         super.onDestroy()
+        player.interrupt() // 스레드 종료
+        mediaPlayer?.release() // 미디어 플레이어 종료
+        mediaPlayer = null
     }
 }
 

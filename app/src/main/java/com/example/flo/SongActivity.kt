@@ -71,10 +71,12 @@ class SongActivity : AppCompatActivity() {
         binding.songBtnPlayIv.setOnClickListener{
             setPlayerStatus(true)
             song.isPlaying = true
+            mediaPlayer?.start()
         }
         binding.songBtnPauseIv.setOnClickListener{
            setPlayerStatus(false)
             song.isPlaying = false
+            mediaPlayer?.pause()
         }
 
         //like, unlike 버튼 상태 조작
@@ -152,12 +154,12 @@ class SongActivity : AppCompatActivity() {
             binding.songBtnPlayIv.visibility = View.GONE
             binding.songBtnPauseIv.visibility = View.VISIBLE
             player.isPlaying = true
-            mediaPlayer?.start()
+            //mediaPlayer?.start()
         }else{
             binding.songBtnPlayIv.visibility = View.VISIBLE
             binding.songBtnPauseIv.visibility = View.GONE
             player.isPlaying = false
-            mediaPlayer?.pause()
+            //mediaPlayer?.pause()
             song.currentTime = binding.songPlayProgressPv.progress / 1000
         }
     }
@@ -221,12 +223,12 @@ class SongActivity : AppCompatActivity() {
                 //쓰레드 실행
                 while(true){
 
-                    //반복 재생
-                    if(isRepeat){
-                        mediaPlayer?.setLooping(true)
-                    }else{
-                        mediaPlayer?.setLooping(false)
-                    }
+//                    //반복 재생
+//                    if(isRepeat){
+//                        mediaPlayer?.setLooping(true)
+//                    }else{
+//                        mediaPlayer?.setLooping(false)
+//                    }
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
