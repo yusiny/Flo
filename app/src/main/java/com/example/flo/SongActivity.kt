@@ -42,24 +42,13 @@ class SongActivity : AppCompatActivity() {
         //root: activity_song의 최상단
         setContentView(binding.root)
 
-//        //MainActivity에서 받아온 내용으로 Song
-//        initSong()
-//
-//        //thread 초기화 후 시작 명령
-//        player = Player(song.playTime, song.currentTime, song.isPlaying)
-//        player.start()
 
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            //song.currentTime = mediaPlayer?.currentPosition!!
-//            val json = gson.toJson(song)
-//            intent.putExtra("song", json)
-            startActivity(intent)
+            startActivity(Intent(this, MainActivity::class.java))
         }
 
         //seekBar 이벤트 리스너
-//        binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
         binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(fromUser) {
@@ -146,10 +135,6 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun initSong(){
-//        if(intent.hasExtra("song")){
-//            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
-//        }
-
         //mediaPlayer 연결해 주기
         val music = resources.getIdentifier(song.music, "raw", this.packageName)
         mediaPlayer = MediaPlayer.create(this, music)

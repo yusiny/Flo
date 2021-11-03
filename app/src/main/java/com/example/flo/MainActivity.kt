@@ -31,12 +31,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        //player seekbar를 위한 스레드
-//        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
-//        player.start()
-//
-//        setMiniPlayer()
-
         //play 버튼 상태 변경
         binding.mainMiniplayerBtn.setOnClickListener {
             playbarStatus(true)
@@ -49,13 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         //미니플레이어 클릭 시 SongActivity로 연결
         binding.mainPlayerLayout.setOnClickListener {
-            //startActivity(Intent(this, SongActivity::class.java))
-
-            val intent = Intent(this, SongActivity::class.java)
-            val json = gson.toJson(song)
-            intent.putExtra("song", json)
-
-            startActivity(intent)
+            startActivity(Intent(this, SongActivity::class.java))
         }
 
 
@@ -124,11 +112,6 @@ class MainActivity : AppCompatActivity() {
 
     //미니 플레이어 set 함수
     fun setMiniPlayer(){
-
-//        //SongActivity에서 전달받은 데이터 저장
-//        if(intent.hasExtra("song")){
-//            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
-//        }
 
         //시크바 현재 progress SongActivity와 동기화
         if(song.currentTime!=0){
