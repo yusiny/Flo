@@ -31,11 +31,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //player seekbar를 위한 스레드
-        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
-        player.start()
-
-        setMiniPlayer()
+//        //player seekbar를 위한 스레드
+//        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
+//        player.start()
+//
+//        setMiniPlayer()
 
         //play 버튼 상태 변경
         binding.mainMiniplayerBtn.setOnClickListener {
@@ -103,13 +103,32 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        //sharedPrefernces 받아오기
+        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
+        val jsonSong = sharedPreferences.getString("song", null)
+        song = if(jsonSong == null){
+            Song("라일락","아이유(IU)", "music_lilac", 215, 0,false, false )
+        }else{
+            gson.fromJson(jsonSong, Song::class.java)
+        }
+
+        //player seekbar를 위한 스레드
+        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
+        player.start()
+
+        setMiniPlayer()
+    }
+
     //미니 플레이어 set 함수
     fun setMiniPlayer(){
 
-        //SongActivity에서 전달받은 데이터 저장
-        if(intent.hasExtra("song")){
-            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
-        }
+//        //SongActivity에서 전달받은 데이터 저장
+//        if(intent.hasExtra("song")){
+//            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
+//        }
 
         //시크바 현재 progress SongActivity와 동기화
         if(song.currentTime!=0){
@@ -166,21 +185,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
 
-        //sharedPrefernces 받아오기
+    override fun onPause() {
+        super.onPause()
+
+        //SP
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
-        val jsonSong = sharedPreferences.getString("song", null)
-        song = if(jsonSong == null){
-            Song("라일락","아이유(IU)", "music_lilac", 215, 0,false, false )
-        }else{
-            gson.fromJson(jsonSong, Song::class.java)
-        }
+        val editor = sharedPreferences.edit()
 
-        //setMiniPlayer()
+        val json = gson.toJson(song)
+        editor.putString("song", json)
+        editor.apply()
     }
-
     override fun onDestroy() {
         player.interrupt()
 

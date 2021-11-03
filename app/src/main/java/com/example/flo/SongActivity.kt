@@ -42,24 +42,24 @@ class SongActivity : AppCompatActivity() {
         //root: activity_song의 최상단
         setContentView(binding.root)
 
-        //MainActivity에서 받아온 내용으로 Song
-        initSong()
-
-        //thread 초기화 후 시작 명령
-        player = Player(song.playTime, song.currentTime, song.isPlaying)
-        player.start()
+//        //MainActivity에서 받아온 내용으로 Song
+//        initSong()
+//
+//        //thread 초기화 후 시작 명령
+//        player = Player(song.playTime, song.currentTime, song.isPlaying)
+//        player.start()
 
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
             //song.currentTime = mediaPlayer?.currentPosition!!
-            val json = gson.toJson(song)
-            intent.putExtra("song", json)
+//            val json = gson.toJson(song)
+//            intent.putExtra("song", json)
             startActivity(intent)
         }
 
         //seekBar 이벤트 리스너
-        binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
+//        binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
         binding.songPlayProgressPv.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(fromUser) {
@@ -129,18 +129,35 @@ class SongActivity : AppCompatActivity() {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
+        val jsonSong = sharedPreferences.getString("song", null)
+
+        song = gson.fromJson(jsonSong, Song::class.java)
+
+        //MainActivity에서 받아온 내용으로 Song
+        initSong()
+
+        //thread 초기화 후 시작 명령
+        player = Player(song.playTime, song.currentTime, song.isPlaying)
+        player.start()
+    }
+
     private fun initSong(){
-        if(intent.hasExtra("song")){
-            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
+//        if(intent.hasExtra("song")){
+//            song = gson.fromJson(intent.getStringExtra("song"), Song::class.java)
+//        }
 
-            //mediaPlayer 연결해 주기
-            val music = resources.getIdentifier(song.music, "raw", this.packageName)
-            mediaPlayer = MediaPlayer.create(this, music)
-            binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
-            binding.songAlbumTitleTv.text = song.title
-            binding.songAlbumSingerTv.text = song.singer
-        }
+        //mediaPlayer 연결해 주기
+        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+        mediaPlayer = MediaPlayer.create(this, music)
 
+        binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
+        binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
+        binding.songAlbumTitleTv.text = song.title
+        binding.songAlbumSingerTv.text = song.singer
     }
 
     fun setPlayerStatus(isPlaying:Boolean){
@@ -253,11 +270,11 @@ class SongActivity : AppCompatActivity() {
         //sharedPreferences
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val editor = sharedPreferences.edit() //sharedPreferences 조작 시 사용
-        editor.apply()
 
         //Gson 이용 데이터 변환
         val json = gson.toJson(song)
         editor.putString("song", json)
+        editor.apply()
     }
 
     //화면이 꺼질 떄 자동으로 불리는 함수
