@@ -71,11 +71,13 @@ class SongActivity : AppCompatActivity() {
         binding.songBtnPlayIv.setOnClickListener{
             setPlayerStatus(true)
             song.isPlaying = true
+            player.isPlaying = true
             mediaPlayer?.start()
         }
         binding.songBtnPauseIv.setOnClickListener{
            setPlayerStatus(false)
             song.isPlaying = false
+            player.isPlaying = false
             mediaPlayer?.pause()
         }
 
@@ -143,6 +145,8 @@ class SongActivity : AppCompatActivity() {
         mediaPlayer = MediaPlayer.create(this, music)
         mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
+        mediaPlayer?.seekTo(song.currentTime * 1000)
+        binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!)
 
         binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
         binding.songAlbumTitleTv.text = song.title
@@ -224,7 +228,7 @@ class SongActivity : AppCompatActivity() {
                 while(true){
 
 //                    //반복 재생
-//                    if(isRepeat){
+//                    if(mediaPlayer?.isPlaying!! && isRepeat){
 //                        mediaPlayer?.setLooping(true)
 //                    }else{
 //                        mediaPlayer?.setLooping(false)

@@ -52,11 +52,13 @@ class MainActivity : AppCompatActivity() {
             playbarStatus(true)
             song.isPlaying = true
             mediaPlayer?.start()
+            player.isPlaying = true
         }
         binding.mainPauseBtn.setOnClickListener {
             playbarStatus(false)
             song.isPlaying = false
             mediaPlayer?.pause()
+            player.isPlaying = false
         }
 
         //미니플레이어 클릭 시 SongActivity로 연결
@@ -126,6 +128,16 @@ class MainActivity : AppCompatActivity() {
         //player seekbar를 위한 스레드
         player = Player(song.currentTime, song.isPlaying, song.isRepeated)
         player.start()
+
+        //SongActivity와 플레이 버튼 상태 동기화
+        if(song.isPlaying){
+            playbarStatus(true)
+            mediaPlayer?.start()
+            player.isPlaying = true
+        }else{
+            playbarStatus(false)
+            player.isPlaying = false
+        }
     }
 
     //미니 플레이어 set 함수
@@ -133,30 +145,22 @@ class MainActivity : AppCompatActivity() {
         //mediaPlayer 연결해 주기
         val music = resources.getIdentifier(song.music, "raw", this.packageName)
         mediaPlayer = MediaPlayer.create(this, music)
+        binding.mainMiniplayerSb.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
         mediaPlayer?.seekTo(song.currentTime * 1000)
+        binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!)
 
-        //시크바 현재 progress SongActivity와 동기화
-        if(song.currentTime!=0){
-            binding.mainMiniplayerSb.progress = 1000/song.playTime * song.currentTime
-        }
-
-        //SongActivity와 플레이 버튼 상태 동기화
-        if(song.isPlaying){
-            playbarStatus(true)
-            mediaPlayer?.start()
-        }else{
-            playbarStatus(false)
-        }
     }
 
     fun playbarStatus(playingStatus: Boolean){
         if(playingStatus){
             binding.mainMiniplayerBtn.visibility = View.GONE
             binding.mainPauseBtn.visibility = View.VISIBLE
+            //player.isPlaying = true
 
         }else{
             binding.mainMiniplayerBtn.visibility = View.VISIBLE
             binding.mainPauseBtn.visibility = View.GONE
+            //player.isPlaying = false
         }
     }
 
@@ -180,13 +184,8 @@ class MainActivity : AppCompatActivity() {
                     if(isPlaying){
                         sleep(1000)
                         runOnUiThread{
-                            if(mediaPlayer?.isPlaying!!){
-                                binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
-                            }else{
-                                binding.mainMiniplayerSb.progress = song.currentTime * 1000
-                            }
+                            binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
                             song.currentTime = binding.mainMiniplayerSb.progress / 1000
-                            //binding.songPlayProgressStartTv.text = String.format("%02d:%02d",song.currentTime/ 60, song.currentTime % 60)
                         }
                     }
                 }
@@ -202,6 +201,8 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
+        song.currentTime = binding.mainMiniplayerSb.progress / 1000
+
         //SP
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -212,6 +213,8 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
+        song.isPlaying = false
+        song.isPlaying = false
         player.interrupt() // 스레드 종료
         mediaPlayer?.release() // 미디어 플레이어 종료
         mediaPlayer = null
