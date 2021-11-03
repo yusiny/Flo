@@ -131,7 +131,7 @@ class SongActivity : AppCompatActivity() {
         initSong()
 
         //thread 초기화 후 시작 명령
-        player = Player(song.playTime, song.currentTime, song.isPlaying)
+        player = Player(song.currentTime, song.isPlaying, song.isRepeated)
         player.start()
     }
 
@@ -139,8 +139,9 @@ class SongActivity : AppCompatActivity() {
         //mediaPlayer 연결해 주기
         val music = resources.getIdentifier(song.music, "raw", this.packageName)
         mediaPlayer = MediaPlayer.create(this, music)
-
+        mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
+
         binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
         binding.songAlbumTitleTv.text = song.title
         binding.songAlbumSingerTv.text = song.singer
@@ -152,7 +153,6 @@ class SongActivity : AppCompatActivity() {
             binding.songBtnPauseIv.visibility = View.VISIBLE
             player.isPlaying = true
             mediaPlayer?.start()
-            mediaPlayer?.seekTo(song.currentTime * 1000)
         }else{
             binding.songBtnPlayIv.visibility = View.VISIBLE
             binding.songBtnPauseIv.visibility = View.GONE
@@ -173,6 +173,7 @@ class SongActivity : AppCompatActivity() {
             binding.songBtnRepeatOnIv.visibility = View.GONE
             binding.songBtnRepeatOn1Iv.visibility = View.VISIBLE
             song.isRepeated = true
+            player.isRepeat = true
         }else if(isRepeating == 2){
             binding.songBtnRepeatOffIv.visibility = View.VISIBLE
             binding.songBtnRepeatOnIv.visibility = View.GONE
@@ -213,7 +214,7 @@ class SongActivity : AppCompatActivity() {
 
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
-    inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
+    inner class Player(var currentTime:Int, var isPlaying: Boolean, var isRepeat: Boolean) : Thread(){
         override fun run(){
             //강제 종료 위한 try catch
             try{
@@ -221,10 +222,10 @@ class SongActivity : AppCompatActivity() {
                 while(true){
 
                     //반복 재생
-                    if(!mediaPlayer?.isPlaying!!) {
-                        if(song.isRepeated && song.isPlaying) {
-                            setPlayerStatus(true)
-                        }
+                    if(isRepeat){
+                        mediaPlayer?.setLooping(true)
+                    }else{
+                        mediaPlayer?.setLooping(false)
                     }
 
                     //플레이 중에만 타이머 go

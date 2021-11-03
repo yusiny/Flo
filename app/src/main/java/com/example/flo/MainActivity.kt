@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         setMiniPlayer()
 
         //player seekbar를 위한 스레드
-        player = Player(song.playTime, song.currentTime, song.isPlaying)
+        player = Player(song.currentTime, song.isPlaying, song.isRepeated)
         player.start()
     }
 
@@ -146,7 +146,6 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer?.start()
         }else{
             playbarStatus(false)
-            mediaPlayer?.pause()
         }
     }
 
@@ -158,13 +157,12 @@ class MainActivity : AppCompatActivity() {
         }else{
             binding.mainMiniplayerBtn.visibility = View.VISIBLE
             binding.mainPauseBtn.visibility = View.GONE
-            //mediaPlayer?.pause()
         }
     }
 
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
-    inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
+    inner class Player(var currentTime:Int, var isPlaying: Boolean, var isRepeat: Boolean) : Thread(){
         override fun run(){
             //강제 종료 위한 try catch
             try{
@@ -172,10 +170,10 @@ class MainActivity : AppCompatActivity() {
                 while(true){
 
                     //반복 재생
-                    if(!mediaPlayer?.isPlaying!!) {
-                        if(song.isRepeated && song.isPlaying) {
-                            playbarStatus(true)
-                        }
+                    if(isRepeat){
+                        mediaPlayer?.setLooping(true)
+                    }else{
+                        mediaPlayer?.setLooping(false)
                     }
 
                     //플레이 중에만 타이머 go
