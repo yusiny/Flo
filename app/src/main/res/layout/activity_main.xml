@@ -20,7 +20,7 @@
     <SeekBar
         android:id="@+id/main_miniplayer_sb"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="wrap_content"
         android:max="1000"
         android:progress="0"
         android:background="@null"

@@ -1,11 +1,13 @@
 package com.example.flo
 
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivityMainBinding
 import com.google.gson.Gson
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     //Song 객체
     private var song:Song = Song()
 
+    //미디어 플레이어
+    private var mediaPlayer: MediaPlayer? = null
 
     //Player 스레드
     private lateinit var player: Player
@@ -31,14 +35,28 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //seekBar 이벤트 리스너
+        binding.mainMiniplayerSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if(fromUser) {
+                    mediaPlayer?.seekTo(progress)
+                    player.currentTime = progress / 1000
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
         //play 버튼 상태 변경
         binding.mainMiniplayerBtn.setOnClickListener {
             playbarStatus(true)
             song.isPlaying = true
+            mediaPlayer?.start()
         }
         binding.mainPauseBtn.setOnClickListener {
             playbarStatus(false)
             song.isPlaying = false
+            mediaPlayer?.pause()
         }
 
         //미니플레이어 클릭 시 SongActivity로 연결
@@ -103,15 +121,19 @@ class MainActivity : AppCompatActivity() {
             gson.fromJson(jsonSong, Song::class.java)
         }
 
-        //player seekbar를 위한 스레드
-        player = Player(song.playTime, song.currentTime, song.isPlaying, song.isRepeated)
-        player.start()
-
         setMiniPlayer()
+
+        //player seekbar를 위한 스레드
+        player = Player(song.playTime, song.currentTime, song.isPlaying)
+        player.start()
     }
 
     //미니 플레이어 set 함수
     fun setMiniPlayer(){
+        //mediaPlayer 연결해 주기
+        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+        mediaPlayer = MediaPlayer.create(this, music)
+        mediaPlayer?.seekTo(song.currentTime * 1000)
 
         //시크바 현재 progress SongActivity와 동기화
         if(song.currentTime!=0){
@@ -121,8 +143,10 @@ class MainActivity : AppCompatActivity() {
         //SongActivity와 플레이 버튼 상태 동기화
         if(song.isPlaying){
             playbarStatus(true)
+            mediaPlayer?.start()
         }else{
             playbarStatus(false)
+            mediaPlayer?.pause()
         }
     }
 
@@ -130,41 +154,48 @@ class MainActivity : AppCompatActivity() {
         if(playingStatus){
             binding.mainMiniplayerBtn.visibility = View.GONE
             binding.mainPauseBtn.visibility = View.VISIBLE
+
         }else{
             binding.mainMiniplayerBtn.visibility = View.VISIBLE
             binding.mainPauseBtn.visibility = View.GONE
+            //mediaPlayer?.pause()
         }
     }
 
-    //seekbar 스레드를 위한 객체
-    inner class Player(private val playTime:Int, var currentTime:Int,var isPlaying: Boolean, var isRepeat: Boolean): Thread(){
-        private var second = 0
-
-        //player.start()로 스레드를 시작하면, run이 실행됨
+    //쓰레드를 위한 객체
+    //생성자 playTime isPlaying 생성
+    inner class Player(private val playTime:Int, var currentTime:Int, var isPlaying: Boolean) : Thread(){
         override fun run(){
-            //강제 종료를 위한 try...catch
+            //강제 종료 위한 try catch
             try{
-                if(currentTime!=0) second = song.currentTime
+                //쓰레드 실행
                 while(true){
-                    //노래가 끝나면 반복하거나, 멈추기
-                    if(second >= playTime){
-                        if(isRepeat) second = 0
-                        else break
-                    }
 
-                    //재생 중일 때만 타이머 실행
-                    if(isPlaying){
-                        sleep(1000)
-                        second ++
-
-                        //UI에 반영
-                        runOnUiThread{
-                            binding.mainMiniplayerSb.progress = second*1000/playTime
+                    //반복 재생
+                    if(!mediaPlayer?.isPlaying!!) {
+                        if(song.isRepeated && song.isPlaying) {
+                            playbarStatus(true)
                         }
                     }
-                    song.currentTime = second
+
+                    //플레이 중에만 타이머 go
+                    if(isPlaying){
+                        sleep(1000)
+                        runOnUiThread{
+                            if(mediaPlayer?.isPlaying!!){
+                                binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
+                            }else{
+                                binding.mainMiniplayerSb.progress = song.currentTime * 1000
+                            }
+                            song.currentTime = binding.mainMiniplayerSb.progress / 1000
+                            //binding.songPlayProgressStartTv.text = String.format("%02d:%02d",song.currentTime/ 60, song.currentTime % 60)
+                        }
+                    }
                 }
-            }catch (e: InterruptedException){}
+            }catch(e : InterruptedException){
+                Log.d("interrupt", "쓰레드가 종료되었습니다.")
+            }
+
         }
     }
 
@@ -182,7 +213,6 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         player.interrupt()
-
         super.onDestroy()
     }
 }

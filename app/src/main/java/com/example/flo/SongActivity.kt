@@ -45,7 +45,8 @@ class SongActivity : AppCompatActivity() {
 
         //down 버튼 클릭 시, 액티비티 종료
         binding.songBtnDownIv.setOnClickListener{
-            startActivity(Intent(this, MainActivity::class.java))
+            //startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
 
         //seekBar 이벤트 리스너
