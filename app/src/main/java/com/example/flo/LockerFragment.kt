@@ -30,7 +30,6 @@ class LockerFragment : Fragment() {
                 tab.text = information[position]
         }.attach()
 
-
         return binding.root
     }
 

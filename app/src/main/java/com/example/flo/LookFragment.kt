@@ -11,13 +11,13 @@ import com.example.flo.databinding.FragmentLookBinding
 class LookFragment : Fragment() {
 
     lateinit var binding: FragmentLookBinding
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLookBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
