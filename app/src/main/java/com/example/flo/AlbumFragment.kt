@@ -8,10 +8,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.flo.databinding.FragmentAlbumBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
 
 class AlbumFragment : Fragment() {
 
     lateinit var  binding: FragmentAlbumBinding
+    private  var gson = Gson()
 
     val information = arrayListOf("수록곡", "상세정보", "영상")
 
@@ -23,6 +25,11 @@ class AlbumFragment : Fragment() {
         //fragment에서 binding 초기화하는 패턴
         binding = FragmentAlbumBinding.inflate(inflater, container, false)
 
+        //Home에서 넘어온 데이터 받기
+        val albumData = arguments?.getString("album")
+        val album = gson.fromJson(albumData, Album::class.java)
+        //뷰들에 반영
+        setInit(album)
 
         binding.albumBtnBackIv.setOnClickListener {
             (context as MainActivity).supportFragmentManager.beginTransaction()
@@ -42,5 +49,11 @@ class AlbumFragment : Fragment() {
         }.attach()
 
         return binding.root //setContentView와 같은 역할
+    }
+
+    private fun setInit(album: Album) {
+    binding.albumAlbumImageIv.setImageResource(album.coverImg!!)
+    binding.albumSongTitleTv.text = album.title.toString()
+    binding.albumSongSingerTv.text = album.singer.toString()
     }
 }
