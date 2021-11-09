@@ -43,6 +43,14 @@ class SavedsongsFragment: Fragment() {
         val savedsongsRVAdaper = SavedSongsRVAdapter(savedSongsDatas)
         //리사이클러뷰에 어댑터 연결
         binding.savedsongsRv.adapter = savedsongsRVAdaper
+
+        //클릭 이벤트 리스너 연결
+        savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.myItemClickListener{
+            override fun onRemoveAlbum(position: Int) {
+                savedsongsRVAdaper.removeItem(position)
+            }
+        })
+
         //레이아웃 매니저 설정
         binding.savedsongsRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
