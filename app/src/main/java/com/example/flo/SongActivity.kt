@@ -235,12 +235,12 @@ class SongActivity : AppCompatActivity() {
                 //쓰레드 실행
                 while(true){
 
-//                    //반복 재생
-//                    if(isRepeat){
-//                        mediaPlayer?.setLooping(true)
-//                    }else{
-//                        mediaPlayer?.setLooping(false)
-//                    }
+                    //반복 재생
+                    if(isRepeat){
+                        mediaPlayer?.isLooping = true
+                    }else{
+                        mediaPlayer?.isLooping = false
+                    }
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
