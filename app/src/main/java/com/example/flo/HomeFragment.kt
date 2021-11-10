@@ -27,7 +27,7 @@ class HomeFragment : Fragment() {
     var currentPosition:Int = 0
 
     private var albumDatas = ArrayList<Album>();
-
+//    private var songOfAlbum: ArrayList<Song>
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,7 +46,6 @@ class HomeFragment : Fragment() {
         //데이터 리스트 생성
         albumDatas.apply {
             add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
-            add(Album("Lilac", "아이유(IU)", R.drawable.img_album_exp2))
             add(Album("Weekend", "태연", R.drawable.img_album_exp3))
             add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
             add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))

@@ -62,7 +62,7 @@ class SavedsongsFragment: Fragment() {
                 binding.savedsongsSelectallBtnOnIv.visibility = View.GONE
                 binding.savedsongsSelectallTitleOffTv.visibility = View.VISIBLE
                 binding.savedsongsSelectallTitleOnTv.visibility = View.GONE
-                binding.savedsongsParentofrvV.setBackgroundColor(Color.parseColor("#ffffff"))
+                binding.savedsongsRv.setBackgroundColor(Color.parseColor("#ffffff"))
 
             }else {
                 isSelectedAll = true
@@ -70,7 +70,7 @@ class SavedsongsFragment: Fragment() {
                 binding.savedsongsSelectallBtnOnIv.visibility = View.VISIBLE
                 binding.savedsongsSelectallTitleOffTv.visibility = View.GONE
                 binding.savedsongsSelectallTitleOnTv.visibility = View.VISIBLE
-                binding.savedsongsParentofrvV.setBackgroundColor(Color.parseColor("#eaeaea"))
+                binding.savedsongsRv.setBackgroundColor(Color.parseColor("#eaeaea"))
             }
         }
 
