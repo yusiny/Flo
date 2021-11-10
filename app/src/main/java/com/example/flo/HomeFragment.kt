@@ -27,7 +27,8 @@ class HomeFragment : Fragment() {
     var currentPosition:Int = 0
 
     private var albumDatas = ArrayList<Album>();
-//    private var songOfAlbum: ArrayList<Song>
+    private var songsOfButter =  ArrayList<Song>();
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,14 +44,23 @@ class HomeFragment : Fragment() {
 //        }
 
         //앨범 리사이클러 뷰 생성
+        //방탄 앨범 내용 데이터 리스트입니다
+        songsOfButter.apply {
+            add(Song("Butter", "방탄소년단", "music_butter"))
+            add(Song("Butter (Hotter Remix)", "방탄소년단", "music_butter"))
+            add(Song("Butter (Sweeter Remix)", "방탄소년단", "music_butter"))
+            add(Song("Butter (Cooler Remix)", "방탄소년단", "music_butter"))
+            add(Song("Butter (Instrumental)", "방탄소년단", "music_butter"))
+        }
         //데이터 리스트 생성
         albumDatas.apply {
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
+            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp, songsOfButter))
             add(Album("Weekend", "태연", R.drawable.img_album_exp3))
             add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
+            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5, songsOfButter))
             add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp6))
         }
+
         //더미데이터랑 어댑터 연결
         val albumRVAdapter = AlbumRVAdapter(albumDatas)
         //리사이클러뷰에 어댑터 연결
@@ -60,6 +70,11 @@ class HomeFragment : Fragment() {
         albumRVAdapter.setMyItemClickListener(object : AlbumRVAdapter.myItemClickListener{
             override fun onItemClick(album: Album) {
                 changeAlbumFragment(album)
+            }
+
+            override fun onSongClick(album: Album) {
+                //플레이 버튼 클릭 시 이벤트 설정
+
             }
 
             override fun onRemoveAlbum(position: Int) {
