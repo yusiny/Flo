@@ -1,5 +1,7 @@
 package com.example.flo
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +21,12 @@ import com.google.gson.Gson
 class HomeFragment : Fragment() {
     lateinit var binding: FragmentHomeBinding
 
+    //홈프래그먼트->메인액티비티 데이터 전달을 위한 인터페이스
+    interface onAlbumListener{
+        fun onAlbumPass(albumPassed: Album)
+    }
+    lateinit var albumPassListener: onAlbumListener
+
     private lateinit var autopager: AutoPager //메인배너를 위한 스레드
     private val handler = Handler(Looper.getMainLooper()){
         setPage()
@@ -26,8 +34,18 @@ class HomeFragment : Fragment() {
     }
     var currentPosition:Int = 0
 
-    private var albumDatas = ArrayList<Album>();
-    private var songsOfButter =  ArrayList<Song>();
+    private var albumDatas = ArrayList<Album>()
+    private var songsOfButter =  ArrayList<Song>()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        albumPassListener = context as onAlbumListener //context를 리스너 타입으로 형변환
+    }
+
+//    override fun onDetach() {
+//        super.onDetach()
+//        albumPassListener = null
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,7 +92,7 @@ class HomeFragment : Fragment() {
 
             override fun onSongClick(album: Album) {
                 //플레이 버튼 클릭 시 이벤트 설정
-
+                albumPassListener.onAlbumPass(album)
             }
 
             override fun onRemoveAlbum(position: Int) {

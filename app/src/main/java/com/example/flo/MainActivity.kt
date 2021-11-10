@@ -14,9 +14,12 @@ import com.google.gson.Gson
 import java.lang.Thread.sleep
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), HomeFragment.onAlbumListener {
     lateinit var binding: ActivityMainBinding
     //전역 변수
+
+    //Album 객체
+    private var album: Album = Album()
 
     //Song 객체
     private var song:Song = Song()
@@ -217,6 +220,11 @@ class MainActivity : AppCompatActivity() {
         player.interrupt() // 스레드 종료
         mediaPlayer?.release() // 미디어 플레이어 종료
         mediaPlayer = null
+    }
+
+    override fun onAlbumPass(albumPassed: Album) {
+        album = albumPassed
+        //song = album.songs[0]
     }
 }
 
