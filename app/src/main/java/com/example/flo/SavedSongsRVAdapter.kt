@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flo.databinding.ItemSavedsongsBinding
 
-class SavedSongsRVAdapter(songs: ArrayList<Album>): RecyclerView.Adapter<SavedSongsRVAdapter.ViewHolder>() {
-    private val ssongs : ArrayList<Album> = songs
+class SavedSongsRVAdapter(): RecyclerView.Adapter<SavedSongsRVAdapter.ViewHolder>() {
+    private val songs = ArrayList<Song>()
 
     interface MyItemClickListener{
         fun onRemoveSong(songId: Int)
@@ -27,30 +27,30 @@ class SavedSongsRVAdapter(songs: ArrayList<Album>): RecyclerView.Adapter<SavedSo
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(ssongs[position])
+        holder.bind(songs[position])
         holder.binding.itemSongMoreIv.setOnClickListener {
             removeSong(position)
-            //mItemClickListener.onRemoveSong(ssongs[position].id)
+            mItemClickListener.onRemoveSong(songs[position].id)
         }
     }
 
-//    @SuppressLint("NotifyDataSetChanged")
-//    fun addSongs(songs: ArrayList<Song>) {
-//        this.songs.clear()
-//        this.songs.addAll(songs)
-//
-//        notifyDataSetChanged()
-//    }
-//
-    fun removeSong(position: Int){
-        ssongs.removeAt(position)
+    @SuppressLint("NotifyDataSetChanged")
+    fun addSongs(songs: ArrayList<Song>) {
+        this.songs.clear()
+        this.songs.addAll(songs)
+
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int = ssongs.size
+    fun removeSong(position: Int){
+        songs.removeAt(position)
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount(): Int = songs.size
 
     inner class ViewHolder(val binding: ItemSavedsongsBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(song: Album){
+        fun bind(song: Song){
             binding.itemSongImgIv.setImageResource(song.coverImg!!)
             binding.itemSongTitleTv.text = song.title
             binding.itemSongSingerTv.text = song.singer

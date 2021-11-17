@@ -11,7 +11,7 @@ import com.example.flo.databinding.FragmentSavedsongsBinding
 
 class SavedsongsFragment: Fragment() {
     lateinit var binding: FragmentSavedsongsBinding
-
+    lateinit var songDB: SongDatabase
 
     private var savedSongsDatas = ArrayList<Album>()
     private var isSelectedAll: Boolean = false
@@ -23,36 +23,24 @@ class SavedsongsFragment: Fragment() {
     ): View? {
         binding = FragmentSavedsongsBinding.inflate(inflater, container, false)
 
-        //더미데이터
-        savedSongsDatas.apply {
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
-            add(Album("Lilac", "아이유(IU)", R.drawable.img_album_exp2))
-            add(Album("Weekend", "태연", R.drawable.img_album_exp3))
-            add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
-            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
-            add(Album("Lilac", "아이유(IU)", R.drawable.img_album_exp2))
-            add(Album("Weekend", "태연", R.drawable.img_album_exp3))
-            add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
-            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp4))
-        }
+        songDB = SongDatabase.getInstance(requireContext())!!
 
         //더미데이터랑 어댑터 연결
-        val savedsongsRVAdaper = SavedSongsRVAdapter(savedSongsDatas)
+        val savedsongsRVAdaper = SavedSongsRVAdapter()
         //리사이클러뷰에 어댑터 연결
         binding.savedsongsRv.adapter = savedsongsRVAdaper
+        //레이아웃 매니저 설정
+        binding.savedsongsRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
         //클릭 이벤트 리스너 연결
         savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.MyItemClickListener{
-            override fun onRemoveSong(position: Int) {
-              //
+            override fun onRemoveSong(songId: Int) {
+              songDB.songDao().updateIsLikeById(false, songId)
             }
 
         })
-        //레이아웃 매니저 설정
-        binding.savedsongsRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        savedsongsRVAdaper.addSongs(songDB.songDao().getLikedSongs(true) as ArrayList)
 
 
         binding.savedsongsSelectallAreaV.setOnClickListener{
