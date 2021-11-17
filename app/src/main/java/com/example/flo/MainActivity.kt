@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     //Song 객체
     private var song:Song = Song()
-
+    private lateinit var songDB: SongDatabase
     //미디어 플레이어
     private var mediaPlayer: MediaPlayer? = null
 
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
         mediaPlayer = MediaPlayer.create(this, music)
         binding.mainMiniplayerSb.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
-        mediaPlayer?.seekTo(song.currentTime * 1000)
+        mediaPlayer?.seekTo(song.currentTime * 1000 / song.playTime)
         binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!)
     }
 
@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun inputDummySongs(){
-        val songDB = SongDatabase.getInstance(this)!!
+        songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
 
         if(songs.isNotEmpty()) return
@@ -326,7 +326,8 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
-        song.currentTime = binding.mainMiniplayerSb.progress / 1000
+        song.currentTime = (binding.mainMiniplayerSb.progress * song.playTime)/ 1000
+        songDB.songDao().updateCurrentTimeById(song.currentTime, song.id)
     }
     override fun onDestroy() {
         super.onDestroy()

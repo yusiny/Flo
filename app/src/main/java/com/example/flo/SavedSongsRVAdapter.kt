@@ -29,8 +29,8 @@ class SavedSongsRVAdapter(): RecyclerView.Adapter<SavedSongsRVAdapter.ViewHolder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(songs[position])
         holder.binding.itemSongMoreIv.setOnClickListener {
-            removeSong(position)
-            mItemClickListener.onRemoveSong(songs[position].id)
+            mItemClickListener.onRemoveSong(songs[position].id) //DB에서 !isLike
+            removeSong(position) //실제로 RV 삭제
         }
     }
 

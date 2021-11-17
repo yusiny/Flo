@@ -47,6 +47,9 @@ class SongActivity : AppCompatActivity() {
         songs[nowPos].currentTime = (songs[nowPos].playTime * binding.songPlayProgressPv.progress) /1000
         setPlayerStatus(false)
 
+        //현재 time을 DB 에도 반영
+        songDB.songDao().updateCurrentTimeById(songs[nowPos].currentTime, songs[nowPos].id)
+
         //sharedPreferences
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val editor = sharedPreferences.edit() //sharedPreferences 조작 시 사용
@@ -91,6 +94,7 @@ class SongActivity : AppCompatActivity() {
     }
     private fun setPlayer(song: Song){
         //UI 적용
+        Log.d("currentTime", "currentTime은 ${song.currentTime}이고 ${song.currentTime/60}분 ${song.currentTime%60}초")
         binding.songPlayProgressStartTv.text = String.format("%02d:%02d", song.currentTime/ 60, song.currentTime % 60)
         binding.songPlayProgressEndTv.text = String.format("%02d:%02d", song.playTime/60, song.playTime%60)
         binding.songAlbumTitleTv.text = song.title
