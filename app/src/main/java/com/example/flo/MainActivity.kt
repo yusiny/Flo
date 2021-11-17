@@ -54,15 +54,9 @@ class MainActivity : AppCompatActivity() {
         //play 버튼 상태 변경
         binding.mainMiniplayerBtn.setOnClickListener {
             playbarStatus(true)
-            song.isPlaying = true
-            mediaPlayer?.start()
-            player.isPlaying = true
         }
         binding.mainPauseBtn.setOnClickListener {
             playbarStatus(false)
-            song.isPlaying = false
-            mediaPlayer?.pause()
-            player.isPlaying = false
         }
 
         //미니플레이어 클릭 시 SongActivity로 연결
@@ -180,7 +174,7 @@ class MainActivity : AppCompatActivity() {
             binding.mainMiniplayerBtn.visibility = View.VISIBLE
             binding.mainPauseBtn.visibility = View.GONE
 
-            mediaPlayer?.pause()
+            if(mediaPlayer?.isPlaying!!) mediaPlayer?.pause()
         }
     }
 
@@ -200,7 +194,23 @@ class MainActivity : AppCompatActivity() {
                 0,
                 false,
                 false,
-                false
+                false,
+                1
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Flu",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
             )
         )
 
@@ -210,11 +220,55 @@ class MainActivity : AppCompatActivity() {
                 "방탄소년단",
                 R.drawable.img_album_exp,
                 "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Butter (Hotter Remix) ",
+                "방탄소년단",
+                R.drawable.img_album_exp,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Butter (Sweeter Remix) ",
+                "방탄소년단",
+                R.drawable.img_album_exp,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                3
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Next Level (IMALY Remix)",
+                "aespa",
+                R.drawable.img_album_exp4,
+                "music_lilac",
                 200,
                 0,
                 false,
                 false,
-                false
+                false,
+                3
             )
         )
 
@@ -228,23 +282,12 @@ class MainActivity : AppCompatActivity() {
                 0,
                 false,
                 false,
-                false
+                false,
+                4
             )
         )
 
-        songDB.songDao().insert(
-            Song(
-                "Next Level",
-                "aespa",
-                R.drawable.img_album_exp4,
-                "music_lilac",
-                200,
-                0,
-                false,
-                false,
-                false
-            )
-        )
+
 
         val _songs = songDB.songDao().getSongs()
         Log.d("DB DATA", _songs.toString())
