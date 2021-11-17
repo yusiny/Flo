@@ -30,13 +30,13 @@ class SavedsongsFragment: Fragment() {
             add(Album("Weekend", "태연", R.drawable.img_album_exp3))
             add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
             add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
-            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp6))
+            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp4))
             add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
             add(Album("Lilac", "아이유(IU)", R.drawable.img_album_exp2))
             add(Album("Weekend", "태연", R.drawable.img_album_exp3))
             add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
             add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
-            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp6))
+            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp4))
         }
 
         //더미데이터랑 어댑터 연결
@@ -45,12 +45,12 @@ class SavedsongsFragment: Fragment() {
         binding.savedsongsRv.adapter = savedsongsRVAdaper
 
         //클릭 이벤트 리스너 연결
-        savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.myItemClickListener{
-            override fun onRemoveAlbum(position: Int) {
-                savedsongsRVAdaper.removeItem(position)
+        savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.MyItemClickListener{
+            override fun onRemoveSong(position: Int) {
+              //
             }
-        })
 
+        })
         //레이아웃 매니저 설정
         binding.savedsongsRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 

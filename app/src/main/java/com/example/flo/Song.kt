@@ -5,6 +5,7 @@ data class Song(
     var title:String = "",
     var singer:String ="",
     var music: String = "",
+    var coverImg: Int? = null,
     var playTime:Int = 0,
     var currentTime: Int = 0,
     var isPlaying:Boolean = false,

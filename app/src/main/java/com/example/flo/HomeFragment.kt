@@ -21,12 +21,6 @@ import com.google.gson.Gson
 class HomeFragment : Fragment() {
     lateinit var binding: FragmentHomeBinding
 
-    //홈프래그먼트->메인액티비티 데이터 전달을 위한 인터페이스
-    interface onAlbumListener{
-        fun onAlbumPass(albumPassed: Album)
-    }
-    lateinit var albumPassListener: onAlbumListener
-
     private lateinit var autopager: AutoPager //메인배너를 위한 스레드
     private val handler = Handler(Looper.getMainLooper()){
         setPage()
@@ -35,17 +29,7 @@ class HomeFragment : Fragment() {
     var currentPosition:Int = 0
 
     private var albumDatas = ArrayList<Album>()
-    private var songsOfButter =  ArrayList<Song>()
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        albumPassListener = context as onAlbumListener //context를 리스너 타입으로 형변환
-    }
-
-//    override fun onDetach() {
-//        super.onDetach()
-//        albumPassListener = null
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,50 +38,28 @@ class HomeFragment : Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-//        binding.homeTodayAlbum1Iv.setOnClickListener{
-//            //조각을 어디서 변경하는지
-//            (context as MainActivity).supportFragmentManager.beginTransaction()
-//                .replace(R.id.main_frm, AlbumFragment()) //main fragment에서 album fragment로
-//                .commitAllowingStateLoss()
-//        }
 
-        //앨범 리사이클러 뷰 생성
-        //방탄 앨범 내용 데이터 리스트입니다
-        songsOfButter.apply {
-            add(Song("Butter", "방탄소년단", "music_butter"))
-            add(Song("Butter (Hotter Remix)", "방탄소년단", "music_butter"))
-            add(Song("Butter (Sweeter Remix)", "방탄소년단", "music_butter"))
-            add(Song("Butter (Cooler Remix)", "방탄소년단", "music_butter"))
-            add(Song("Butter (Instrumental)", "방탄소년단", "music_butter"))
-        }
         //데이터 리스트 생성
         albumDatas.apply {
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp, songsOfButter))
+            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
             add(Album("Weekend", "태연", R.drawable.img_album_exp3))
             add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5, songsOfButter))
-            add(Album("Savage", "에스파(aespa)", R.drawable.img_album_exp6))
+            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
         }
 
         //더미데이터랑 어댑터 연결
         val albumRVAdapter = AlbumRVAdapter(albumDatas)
         //리사이클러뷰에 어댑터 연결
         binding.homeAlbumareaRv.adapter = albumRVAdapter
-
-        //클릭 이벤트느 리스너 연결
-        albumRVAdapter.setMyItemClickListener(object : AlbumRVAdapter.myItemClickListener{
+        albumRVAdapter.setMyItemClickListener(object : AlbumRVAdapter.MyItemClickListener{
             override fun onItemClick(album: Album) {
-                changeAlbumFragment(album)
-            }
-
-            override fun onSongClick(album: Album) {
-                //플레이 버튼 클릭 시 이벤트 설정
-                albumPassListener.onAlbumPass(album)
+                startAlbumFragment(album)
             }
 
             override fun onRemoveAlbum(position: Int) {
-               albumRVAdapter.removeItem(position)
+                albumRVAdapter.removeItem(position)
             }
+
         })
 
 
@@ -139,7 +101,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    private fun changeAlbumFragment(album: Album) {
+    private fun startAlbumFragment(album: Album) {
         (context as MainActivity).supportFragmentManager.beginTransaction()
             .replace(R.id.main_frm, AlbumFragment().apply {
                 arguments = Bundle().apply {
@@ -147,7 +109,7 @@ class HomeFragment : Fragment() {
                     val albumJson = gson.toJson(album)
                     putString("album", albumJson)
                 }
-            }) //main fragment에서 album fragment로
+            })
             .commitAllowingStateLoss()
     }
 

@@ -14,7 +14,7 @@ import com.google.gson.Gson
 import java.lang.Thread.sleep
 
 
-class MainActivity : AppCompatActivity(), HomeFragment.onAlbumListener {
+class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     //전역 변수
 
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(), HomeFragment.onAlbumListener {
         val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
         val jsonSong = sharedPreferences.getString("song", null)
         song = if(jsonSong == null){
-            Song("라일락","아이유(IU)", "music_lilac", 215, 0,false, false )
+            Song("라일락","아이유(IU)", "music_lilac", R.drawable.img_album_exp2, 215, 0,false, false )
         }else{
             gson.fromJson(jsonSong, Song::class.java)
         }
@@ -222,10 +222,10 @@ class MainActivity : AppCompatActivity(), HomeFragment.onAlbumListener {
         mediaPlayer = null
     }
 
-    override fun onAlbumPass(albumPassed: Album) {
-        album = albumPassed
-        //song = album.songs[0]
-    }
+//    override fun onAlbumPass(albumPassed: Album) {
+//        album = albumPassed
+//        //song = album.songs[0]
+//    }
 }
 
 
