@@ -18,9 +18,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     //전역 변수
 
-    //Album 객체
-    private var album: Album = Album()
-
     //Song 객체
     private var song:Song = Song()
 
@@ -37,6 +34,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        initNavigation()
+        //inputDummyAlbums()
+        inputDummySongs()
 
         //seekBar 이벤트 리스너
         binding.mainMiniplayerSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -66,11 +67,16 @@ class MainActivity : AppCompatActivity() {
 
         //미니플레이어 클릭 시 SongActivity로 연결
         binding.mainPlayerLayout.setOnClickListener {
+            Log.d("nowSongId", song.id.toString())
+
+            //Sending 'song.id' to songActivity
+            val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
+            editor.putInt("songId", song.id)
+            editor.apply()
+
             startActivity(Intent(this, SongActivity::class.java))
         }
 
-
-        initNavigation()
 
         binding.mainBnv.setOnItemSelectedListener {
             when (it.itemId) {
@@ -117,54 +123,131 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        //sharedPrefernces 받아오기
-        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
-        val jsonSong = sharedPreferences.getString("song", null)
-        song = if(jsonSong == null){
-            Song("라일락","아이유(IU)", g"music_lilac", R.drawable.img_album_exp2, 215, 0,false, false )
+        val spf = getSharedPreferences("song", MODE_PRIVATE)
+        val songId = spf.getInt("songId", 0)
+
+        val songDB = SongDatabase.getInstance(this)!!
+        song = if(songId == 0){
+           songDB.songDao().getSong(1)
         }else{
-            gson.fromJson(jsonSong, Song::class.java)
+            songDB.songDao().getSong(songId)
         }
 
         setMiniPlayer()
+        startPlayer()
+        setMediaPlayer()
 
-        //player seekbar를 위한 스레드
-        player = Player(song.currentTime, song.isPlaying, song.isRepeated)
-        player.start()
-
-        //SongActivity와 플레이 버튼 상태 동기화
-        if(song.isPlaying){
-            playbarStatus(true)
-            mediaPlayer?.start()
-            player.isPlaying = true
-        }else{
-            playbarStatus(false)
-            player.isPlaying = false
+        mediaPlayer?.setOnPreparedListener {
+            if (song.isPlaying)
+                playbarStatus(true)
         }
     }
 
-    //미니 플레이어 set 함수
-    fun setMiniPlayer(){
+    private fun setMediaPlayer() {
         //mediaPlayer 연결해 주기
         val music = resources.getIdentifier(song.music, "raw", this.packageName)
+
         mediaPlayer = MediaPlayer.create(this, music)
         binding.mainMiniplayerSb.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
         mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!)
+    }
 
+    private fun startPlayer() {
+        //player seekbar를 위한 스레드
+        player = Player(song.currentTime, song.isPlaying, song.isRepeated)
+        player.start()
+    }
+
+    //미니 플레이어 set 함수
+    fun setMiniPlayer(){
+        binding.mainMiniplayerTitleTv.text = song.title
+        binding.mainMiniplayerSingerTv.text = song.singer
+        binding.mainMiniplayerSb.progress = (song.currentTime * 1000 / song.playTime)
     }
 
     fun playbarStatus(playingStatus: Boolean){
+        player.isPlaying = playingStatus
+        song.isPlaying = playingStatus
+
         if(playingStatus){
             binding.mainMiniplayerBtn.visibility = View.GONE
             binding.mainPauseBtn.visibility = View.VISIBLE
-            //player.isPlaying = true
+
+            mediaPlayer?.start()
 
         }else{
             binding.mainMiniplayerBtn.visibility = View.VISIBLE
             binding.mainPauseBtn.visibility = View.GONE
-            //player.isPlaying = false
+
+            mediaPlayer?.pause()
         }
+    }
+
+    private fun inputDummySongs(){
+        val songDB = SongDatabase.getInstance(this)!!
+        val songs = songDB.songDao().getSongs()
+
+        if(songs.isNotEmpty()) return
+
+        songDB.songDao().insert(
+            Song(
+                "Lilac",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Butter",
+                "방탄소년단",
+                R.drawable.img_album_exp,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Weekend",
+                "태연",
+                R.drawable.img_album_exp3,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Next Level",
+                "aespa",
+                R.drawable.img_album_exp4,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false
+            )
+        )
+
+        val _songs = songDB.songDao().getSongs()
+        Log.d("DB DATA", _songs.toString())
     }
 
     //쓰레드를 위한 객체
@@ -177,11 +260,7 @@ class MainActivity : AppCompatActivity() {
                 while(true){
 
                     //반복 재생
-                    if(isRepeat){
-                        mediaPlayer?.isLooping = true
-                    }else{
-                        mediaPlayer?.isLooping = false
-                    }
+                    mediaPlayer?.isLooping = isRepeat
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
@@ -205,27 +284,14 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
         song.currentTime = binding.mainMiniplayerSb.progress / 1000
-
-        //SP
-        val sharedPreferences = getSharedPreferences("song", MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-
-        val json = gson.toJson(song)
-        editor.putString("song", json)
-        editor.apply()
     }
     override fun onDestroy() {
         super.onDestroy()
-        //song.isPlaying = false
+
         player.interrupt() // 스레드 종료
         mediaPlayer?.release() // 미디어 플레이어 종료
         mediaPlayer = null
     }
-
-//    override fun onAlbumPass(albumPassed: Album) {
-//        album = albumPassed
-//        //song = album.songs[0]
-//    }
 }
 
 
