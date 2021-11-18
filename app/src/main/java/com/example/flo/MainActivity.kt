@@ -21,14 +21,11 @@ class MainActivity : AppCompatActivity() {
     //Song 객체
     private var song:Song = Song()
     private lateinit var songDB: SongDatabase
-    //미디어 플레이어
-    private var mediaPlayer: MediaPlayer? = null
 
-    //Player 스레드
+    //미디어 플레이어와 Player 스레드
+    private var mediaPlayer: MediaPlayer? = null
     private lateinit var player: Player
 
-    //Gson
-    private var gson:Gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +63,7 @@ class MainActivity : AppCompatActivity() {
             //Sending 'song.id' to songActivity
             val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
             editor.putInt("songId", song.id)
+            editor.putBoolean("isPlaying", song.isPlaying)
             editor.apply()
 
             startActivity(Intent(this, SongActivity::class.java))
@@ -119,6 +117,7 @@ class MainActivity : AppCompatActivity() {
 
         val spf = getSharedPreferences("song", MODE_PRIVATE)
         val songId = spf.getInt("songId", 0)
+        song.isPlaying = spf.getBoolean("isPlaying", false)
 
         val songDB = SongDatabase.getInstance(this)!!
         song = if(songId == 0){
@@ -143,7 +142,7 @@ class MainActivity : AppCompatActivity() {
 
         mediaPlayer = MediaPlayer.create(this, music)
         binding.mainMiniplayerSb.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
-        mediaPlayer?.seekTo(song.currentTime * 1000 / song.playTime)
+        mediaPlayer?.seekTo(song.currentTime * 1000)
         binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!)
     }
 
@@ -157,7 +156,7 @@ class MainActivity : AppCompatActivity() {
     fun setMiniPlayer(){
         binding.mainMiniplayerTitleTv.text = song.title
         binding.mainMiniplayerSingerTv.text = song.singer
-        binding.mainMiniplayerSb.progress = (song.currentTime * 1000 / song.playTime)
+        //binding.mainMiniplayerSb.progress = (song.currentTime * 1000 / song.playTime)
     }
 
     fun playbarStatus(playingStatus: Boolean){
@@ -302,15 +301,15 @@ class MainActivity : AppCompatActivity() {
                 //쓰레드 실행
                 while(true){
 
-                    //반복 재생
-                    mediaPlayer?.isLooping = isRepeat
+//                    //반복 재생
+//                    mediaPlayer?.isLooping = isRepeat
 
                     //플레이 중에만 타이머 go
                     if(isPlaying){
                         sleep(1000)
                         runOnUiThread{
                             binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!) //현재 재생 위치 시크바에 적용
-                            song.currentTime = binding.mainMiniplayerSb.progress / 1000
+                            //song.currentTime = binding.mainMiniplayerSb.progress / 1000
                         }
                     }
                 }
@@ -326,7 +325,10 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.pause() // 미디어 플레이어 중지
         player.isPlaying = false // 스레드 중지
-        song.currentTime = (binding.mainMiniplayerSb.progress * song.playTime)/ 1000
+
+        song.currentTime = binding.mainMiniplayerSb.progress/ 1000
+        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${song.currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress.toInt()}")
+
         songDB.songDao().updateCurrentTimeById(song.currentTime, song.id)
     }
     override fun onDestroy() {

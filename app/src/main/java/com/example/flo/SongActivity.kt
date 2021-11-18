@@ -39,13 +39,13 @@ class SongActivity : AppCompatActivity() {
         initClickListener()
     }
 
-
     override fun onPause() {
         super.onPause()
 
         mediaPlayer?.pause() // 미디어 플레이어 중지
-        songs[nowPos].currentTime = (songs[nowPos].playTime * binding.songPlayProgressPv.progress) /1000
-        setPlayerStatus(false)
+        player.isPlaying = false
+
+        songs[nowPos].currentTime = binding.songPlayProgressPv.progress /1000
 
         //현재 time을 DB 에도 반영
         songDB.songDao().updateCurrentTimeById(songs[nowPos].currentTime, songs[nowPos].id)
@@ -56,6 +56,7 @@ class SongActivity : AppCompatActivity() {
 
         //Gson 이용 데이터 변환
         editor.putInt("songId", songs[nowPos].id)
+        editor.putBoolean("isPlaying", songs[nowPos].isPlaying)
         editor.apply()
     }
 
@@ -77,6 +78,7 @@ class SongActivity : AppCompatActivity() {
         val songId = spf.getInt("songId", 0)
 
         nowPos = getPlayingSongPosition(songId)
+        songs[nowPos].isPlaying = spf.getBoolean("isPlaying", false)
         Log.d("now songPos", songs[nowPos].toString())
 
         //스레드 시작
@@ -85,7 +87,7 @@ class SongActivity : AppCompatActivity() {
         setPlayer(songs[nowPos])
         //상태 적용
         mediaPlayer?.setOnPreparedListener {
-          setPlayerStatus(songs[nowPos].isPlaying)
+         if(songs[nowPos].isPlaying) setPlayerStatus(songs[nowPos].isPlaying)
         }
     }
     private fun startPlayer(){
@@ -106,7 +108,7 @@ class SongActivity : AppCompatActivity() {
 
         mediaPlayer = MediaPlayer.create(this, music)
         binding.songPlayProgressPv.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
-        mediaPlayer?.seekTo(songs[nowPos].currentTime * 1000)
+        mediaPlayer?.seekTo(songs[nowPos].currentTime * 1000 )
         binding.songPlayProgressPv.setProgress(mediaPlayer?.currentPosition!!)
 
         setPlayerStatus(songs[nowPos].isPlaying)
