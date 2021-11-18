@@ -36,38 +36,7 @@ class MainActivity : AppCompatActivity() {
         //inputDummyAlbums()
         inputDummySongs()
 
-        //seekBar 이벤트 리스너
-        binding.mainMiniplayerSb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if(fromUser) {
-                    mediaPlayer?.seekTo(progress)
-                    player.currentTime = progress / 1000
-                }
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        //play 버튼 상태 변경
-        binding.mainMiniplayerBtn.setOnClickListener {
-            playbarStatus(true)
-        }
-        binding.mainPauseBtn.setOnClickListener {
-            playbarStatus(false)
-        }
-
-        //미니플레이어 클릭 시 SongActivity로 연결
-        binding.mainPlayerLayout.setOnClickListener {
-            Log.d("nowSongId", song.id.toString())
-
-            //Sending 'song.id' to songActivity
-            val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
-            editor.putInt("songId", song.id)
-            editor.putBoolean("isPlaying", song.isPlaying)
-            editor.apply()
-
-            startActivity(Intent(this, SongActivity::class.java))
-        }
+        initClickListener()
 
 
         binding.mainBnv.setOnItemSelectedListener {
@@ -106,6 +75,43 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun initClickListener() {
+        //seekBar 이벤트 리스너
+        binding.mainMiniplayerSb.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    mediaPlayer?.seekTo(progress)
+                    player.currentTime = progress / 1000
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        //play 버튼 상태 변경
+        binding.mainMiniplayerBtn.setOnClickListener {
+            playbarStatus(true)
+        }
+        binding.mainPauseBtn.setOnClickListener {
+            playbarStatus(false)
+        }
+
+        //미니플레이어 클릭 시 SongActivity로 연결
+        binding.mainPlayerLayout.setOnClickListener {
+            Log.d("nowSongId", song.id.toString())
+
+            //Sending 'song.id' to songActivity
+            val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
+            editor.putInt("songId", song.id)
+            editor.putBoolean("isPlaying", song.isPlaying)
+            editor.apply()
+
+            startActivity(Intent(this, SongActivity::class.java))
+        }
+    }
+
     private fun initNavigation() {
         supportFragmentManager.beginTransaction().replace(R.id.main_frm, HomeFragment())
             .commitAllowingStateLoss()
@@ -114,12 +120,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        //songDB 연결
+        val songDB = SongDatabase.getInstance(this)!!
 
+        //SP로 songId, isPlaying 받아오기
         val spf = getSharedPreferences("song", MODE_PRIVATE)
         val songId = spf.getInt("songId", 0)
         song.isPlaying = spf.getBoolean("isPlaying", false)
 
-        val songDB = SongDatabase.getInstance(this)!!
         song = if(songId == 0){
            songDB.songDao().getSong(1)
         }else{
@@ -129,6 +137,7 @@ class MainActivity : AppCompatActivity() {
         setMiniPlayer()
         startPlayer()
         setMediaPlayer()
+
 
         mediaPlayer?.setOnPreparedListener {
             if (song.isPlaying)
@@ -177,6 +186,50 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Room_DB setup
+    private fun inputDummyAlbums(){
+        val songDB = SongDatabase.getInstance(this)!!
+        val albums = songDB.albumDao().getAlbums()
+
+        if(albums.isNotEmpty()) return
+
+        songDB.albumDao().insert(
+            Album(
+                1,
+                "IU 5th Album 'LILAC'", "아이유 (IU)", R.drawable.img_album_exp2
+            )
+        )
+        songDB.albumDao().insert(
+            Album(
+                2,
+                "Butter", "방탄소년단", R.drawable.img_album_exp
+            )
+        )
+        songDB.albumDao().insert(
+            Album(
+                3,
+                "Next Level", "aespa", R.drawable.img_album_exp4
+            )
+        )
+        songDB.albumDao().insert(
+            Album(
+                4,
+                "Weekend", "태연 (TAEYEON)", R.drawable.img_album_exp3
+            )
+        )
+        songDB.albumDao().insert(
+            Album(
+                5,
+                "Butter / Permission To Dance", "방탄소년단", R.drawable.img_album_exp5
+            )
+        )
+        songDB.albumDao().insert(
+            Album(
+                6,
+                "Savage - The 1st Mini Album", "aespa", R.drawable.img_album_exp6
+            )
+        )
+    }
     private fun inputDummySongs(){
         songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
@@ -194,13 +247,126 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                1
+                1,
+                true
             )
         )
-
         songDB.songDao().insert(
             Song(
                 "Flu",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Coin",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2,
+                true
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "봄 안녕 봄",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Celebrity",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "돌림노래 (Feat. DEAN)",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "빈 컵(Empty Cup)",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "아이와 나의 바다",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "어푸 (Ah puh)",
+                "아이유 (IU)",
+                R.drawable.img_album_exp2,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                2
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "에필로그",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
                 "music_lilac",
@@ -224,7 +390,8 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                2
+                2,
+                true
             )
         )
         songDB.songDao().insert(
@@ -267,7 +434,8 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                3
+                3,
+                true
             )
         )
 
@@ -282,7 +450,168 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                4
+                4,
+                true
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Butter",
+                "방탄소년단",
+                R.drawable.img_album_exp,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                5
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "Butter",
+                "방탄소년단",
+                R.drawable.img_album_exp5,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                5,
+                true
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Permission To Dance",
+                "방탄소년단",
+                R.drawable.img_album_exp5,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                5,
+                true
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Butter (Instrumental)",
+                "방탄소년단",
+                R.drawable.img_album_exp5,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                5
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Permission To Dance (Instrunmental)",
+                "방탄소년단",
+                R.drawable.img_album_exp5,
+                "music_lilac",
+                190,
+                0,
+                false,
+                false,
+                false,
+                5
+            )
+        )
+
+        songDB.songDao().insert(
+            Song(
+                "aenergy",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "Savage",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
+                true
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "I'll Make You Cry",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "YEPPI YEPPI",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "ICONIC",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
+            )
+        )
+        songDB.songDao().insert(
+            Song(
+                "자각몽 (Lucid Dream)",
+                "aespa",
+                R.drawable.img_album_exp6,
+                "music_lilac",
+                200,
+                0,
+                false,
+                false,
+                false,
+                6,
             )
         )
 
@@ -327,7 +656,7 @@ class MainActivity : AppCompatActivity() {
         player.isPlaying = false // 스레드 중지
 
         song.currentTime = binding.mainMiniplayerSb.progress/ 1000
-        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${song.currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress.toInt()}")
+        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${song.currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress}")
 
         songDB.songDao().updateCurrentTimeById(song.currentTime, song.id)
     }
