@@ -3,6 +3,8 @@ package com.example.flo
 import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -10,17 +12,27 @@ import com.example.flo.databinding.ActivityLoginBinding
 
 class LoginActivity: AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
+    private var isPWHide: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.loginLoginbtnTv.setOnClickListener{
+        initClickListener()
+        setHide()
+    }
+
+    private fun initClickListener() {
+        binding.loginLoginbtnTv.setOnClickListener {
             signIn()
             startMainActivity()
         }
 
+        binding.loginPwHideIv.setOnClickListener {
+            isPWHide = !isPWHide
+            setHide()
+        }
         binding.loginSignupbtnTv.setOnClickListener {
             startActivity(Intent(this, SignupAcitivity::class.java))
         }
@@ -70,5 +82,15 @@ class LoginActivity: AppCompatActivity() {
 
     private fun startMainActivity(){
         startActivity(Intent(this, MainActivity::class.java))
+    }
+
+    private fun setHide(){
+        if(isPWHide){
+            binding.loginPwEt.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            binding.loginPwHideIv.setImageResource(R.drawable.btn_input_password)
+        }else{
+            binding.loginPwHideIv.setImageResource(R.drawable.btn_input_password_off)
+            binding.loginPwEt.transformationMethod = PasswordTransformationMethod.getInstance()
+        }
     }
 }

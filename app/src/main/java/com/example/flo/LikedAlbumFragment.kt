@@ -39,7 +39,6 @@ class LikedAlbumFragment: Fragment() {
 
         val userId = getJWT()
         val albums = songDB.albumDao().getLikedAlbums(userId)
-        Log.d("LIKEDALBUM", "userId ${userId} albums $albums")
         likedalbumAdapter.addAlbums(albums as ArrayList)
 
         //클릭 이벤트 리스너 연결

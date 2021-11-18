@@ -2,14 +2,19 @@ package com.example.flo
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivityLoginBinding
 import com.example.flo.databinding.ActivitySignupBinding
 
-class SignupAcitivity: AppCompatActivity() {
+class SignupAcitivity : AppCompatActivity() {
     lateinit var binding: ActivitySignupBinding
+    private var isPWhide: Boolean = true
+    private var isPWChide: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,15 +22,54 @@ class SignupAcitivity: AppCompatActivity() {
         setContentView(binding.root)
 
         //회원가입 버튼 클릭 시 메인으로 이동
-        binding.signupSignupbtnTv.setOnClickListener{
+        binding.signupSignupbtnTv.setOnClickListener {
             signUp()
             finish()
+        }
+
+        initClickListener()
+        setPWstatus()
+
+        if(binding.signupIdEt.isFocused) { binding.signupPwEt.setBackgroundColor(808080)}
+        if(binding.signupPwConfirmEt.isFocused) { binding.signupPwEt.setBackgroundColor(808080)}
+        if(binding.signupIdEt.isFocused) { binding.signupPwEt.setBackgroundColor(808080)}
+        if(binding.signupIdAdressEt.isFocused) { binding.signupPwEt.setBackgroundColor(808080)}
+
     }
 
-}
+    private fun initClickListener() {
+        binding.signupPwHidebtnIv.setOnClickListener {
+            isPWhide = !isPWhide
+           setPWstatus()
+        }
+        binding.signupPwConfirmHidebtnIv.setOnClickListener {
+            isPWChide = !isPWChide
+            setPWstatus()
+        }
+    }
 
-    private fun getUser(): User{
-        val email: String = binding.signupIdEt.text.toString() + "@" + binding.signupIdAdressEt.text.toString()
+    private fun setPWstatus(){
+        //hide 상태 -> hide 해제, text 모드
+        if (isPWhide) {
+            binding.signupPwEt.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            binding.signupPwHidebtnIv.setImageResource(R.drawable.btn_input_password)
+        } else {
+            binding.signupPwEt.transformationMethod = PasswordTransformationMethod.getInstance()
+            binding.signupPwHidebtnIv.setImageResource(R.drawable.btn_input_password_off)
+        }
+        //hide 상태 -> hide 해제, text 모드
+        if (isPWChide) {
+            binding.signupPwConfirmEt.transformationMethod = HideReturnsTransformationMethod.getInstance()
+            binding.signupPwConfirmHidebtnIv.setImageResource(R.drawable.btn_input_password)
+        } else {
+            binding.signupPwConfirmEt.transformationMethod = PasswordTransformationMethod.getInstance()
+            binding.signupPwConfirmHidebtnIv.setImageResource(R.drawable.btn_input_password_off)
+        }
+    }
+
+    private fun getUser(): User {
+        val email: String =
+            binding.signupIdEt.text.toString() + "@" + binding.signupIdAdressEt.text.toString()
         val password: String = binding.signupPwEt.text.toString()
 
         return User(email, password)
