@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     //Song 객체
     private var song:Song = Song()
     private lateinit var songDB: SongDatabase
-    private var albumId: Int = 0
+    private var albumId: Int = 1
 
     //미디어 플레이어와 Player 스레드
     private var mediaPlayer: MediaPlayer? = null

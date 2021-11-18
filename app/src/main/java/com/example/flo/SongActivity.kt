@@ -21,7 +21,7 @@ class SongActivity : AppCompatActivity() {
 
     private var songs = ArrayList<Song>()
     private var nowPos = 0
-    private var albumId: Int = 0
+    private var albumId: Int = 1
     private lateinit var songDB: SongDatabase
 
     //미디어 플레이어와 스레드
@@ -72,7 +72,7 @@ class SongActivity : AppCompatActivity() {
     private fun initPlayList(){
         val spf = getSharedPreferences("song", MODE_PRIVATE)
         albumId = spf.getInt("albumId", 1)
-
+        Log.d("spf", "albumId는 ${albumId}")
         songDB = SongDatabase.getInstance(this)!!
         songs.addAll(songDB.songDao().getSongsByAlbumId(albumId))
         Log.d("SongActivity", songs.toString())
@@ -86,6 +86,8 @@ class SongActivity : AppCompatActivity() {
 
         songs[nowPos].isPlaying = spf.getBoolean("isPlaying", false)
         Log.d("now songPos", songs[nowPos].toString())
+
+        Log.d("spf", "songId는 ${songId} isPlaying은 ${songs[nowPos].isPlaying}")
 
         //스레드 시작
         startPlayer()
