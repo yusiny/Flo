@@ -1,16 +1,21 @@
 package com.example.flo
 
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivitySongBinding
+import com.example.flo.databinding.ToastLikedunlikedBinding
 import com.google.gson.Gson
 import kotlin.properties.Delegates
 
@@ -58,6 +63,7 @@ class SongActivity : AppCompatActivity() {
         //Gson 이용 데이터 변환
         editor.putInt("songId", songs[nowPos].id)
         editor.putBoolean("isPlaying", songs[nowPos].isPlaying)
+        editor.putInt("albumId", albumId)
         editor.apply()
     }
 
@@ -249,11 +255,17 @@ class SongActivity : AppCompatActivity() {
         songs[nowPos].isLike = !isLike
         songDB.songDao().updateIsLikeById(!isLike, songs[nowPos].id)
 
-        if(isLike)
+        if(isLike) {
             binding.songBtnLikeIv.setImageResource(R.drawable.ic_my_like_off)
-        else
+            ToastLiked.customedLikeToast(this, "좋아요 한 곡이 취소되었습니다.")?.show()
+        }
+        else{
             binding.songBtnLikeIv.setImageResource(R.drawable.ic_my_like_on)
+            ToastLiked.customedLikeToast(this, "좋아요 한 곡에 담겼습니다.")?.show()
+        }
     }
+
+
     private fun moveSong(direct: Int){
         if(nowPos + direct < 0){
             Toast.makeText(this, "first song", Toast.LENGTH_SHORT).show()

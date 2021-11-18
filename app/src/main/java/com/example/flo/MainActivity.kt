@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +22,8 @@ class MainActivity : AppCompatActivity() {
     //전역 변수
 
     //Song 객체
-    private var song:Song = Song()
+    private var songs = ArrayList<Song>()
+    private var nowPos = 0
     private lateinit var songDB: SongDatabase
     private var albumId: Int = 1
 
@@ -40,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         inputDummySongs()
 
         initClickListener()
-
 
         binding.mainBnv.setOnItemSelectedListener {
             when (it.itemId) {
@@ -100,14 +101,22 @@ class MainActivity : AppCompatActivity() {
             playbarStatus(false)
         }
 
+        //next-prev 버튼
+        binding.mainMiniplayerPrevBtn.setOnClickListener {
+            moveSong(-1)
+        }
+        binding.mainMiniplayerNextBtn.setOnClickListener {
+            moveSong(+1)
+        }
+
         //미니플레이어 클릭 시 SongActivity로 연결
         binding.mainPlayerLayout.setOnClickListener {
-            Log.d("nowSongId", song.id.toString())
+            Log.d("nowSongId", songs[nowPos].id.toString())
 
             //Sending 'song.id' to songActivity
             val editor = getSharedPreferences("song", MODE_PRIVATE).edit()
-            editor.putInt("songId", song.id)
-            editor.putBoolean("isPlaying", song.isPlaying)
+            editor.putInt("songId", songs[nowPos].id)
+            editor.putBoolean("isPlaying", songs[nowPos].isPlaying)
             editor.putInt("albumId", albumId)
             editor.apply()
 
@@ -129,51 +138,66 @@ class MainActivity : AppCompatActivity() {
         //SP로 songId, isPlaying 받아오기
         val spf = getSharedPreferences("song", MODE_PRIVATE)
         val songId = spf.getInt("songId", 0)
-        song.isPlaying = spf.getBoolean("isPlaying", false)
+        val albumId = spf.getInt("albumId", 1)
 
-        song = if(songId == 0){
-           songDB.songDao().getSong(1)
-        }else{
-            songDB.songDao().getSong(songId)
-        }
+        songs = songDB.songDao().getSongsByAlbumId(albumId) as ArrayList
 
-        setMiniPlayer()
+        nowPos = getPlayingSongPosition(songId)
+        songs[nowPos].isPlaying = spf.getBoolean("isPlaying", false)
+
+        setMiniPlayer(songs[nowPos])
         startPlayer()
         setMediaPlayer()
 
-
         mediaPlayer?.setOnPreparedListener {
-            if (song.isPlaying)
+            if (songs[nowPos].isPlaying)
                 playbarStatus(true)
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.pause() // 미디어 플레이어 중지
+        player.isPlaying = false // 스레드 중지
+
+        songs[nowPos].currentTime = binding.mainMiniplayerSb.progress/ 1000
+        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${songs[nowPos].currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress}")
+
+        songDB.songDao().updateCurrentTimeById(songs[nowPos].currentTime, songs[nowPos].id)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        player.interrupt() // 스레드 종료
+        mediaPlayer?.release() // 미디어 플레이어 종료
+        mediaPlayer = null
+    }
+
+    //함수들
+
     private fun setMediaPlayer() {
         //mediaPlayer 연결해 주기
-        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+        val music = resources.getIdentifier(songs[nowPos].music, "raw", this.packageName)
 
         mediaPlayer = MediaPlayer.create(this, music)
         binding.mainMiniplayerSb.max = mediaPlayer?.duration!! //노래 길이를 시크바 길이에 적용
-        mediaPlayer?.seekTo(song.currentTime * 1000)
+        mediaPlayer?.seekTo(songs[nowPos].currentTime * 1000)
         binding.mainMiniplayerSb.setProgress(mediaPlayer?.currentPosition!!)
     }
-
     private fun startPlayer() {
         //player seekbar를 위한 스레드
-        player = Player(song.currentTime, song.isPlaying, song.isRepeated)
+        player = Player(songs[nowPos].currentTime, songs[nowPos].isPlaying, songs[nowPos].isRepeated)
         player.start()
     }
-
     //미니 플레이어 set 함수
-    fun setMiniPlayer(){
-        binding.mainMiniplayerTitleTv.text = song.title
-        binding.mainMiniplayerSingerTv.text = song.singer
+    fun setMiniPlayer(nowSong: Song){
+        binding.mainMiniplayerTitleTv.text = nowSong.title
+        binding.mainMiniplayerSingerTv.text = nowSong.singer
         //binding.mainMiniplayerSb.progress = (song.currentTime * 1000 / song.playTime)
     }
-
     fun playbarStatus(playingStatus: Boolean){
         player.isPlaying = playingStatus
-        song.isPlaying = playingStatus
+        songs[nowPos].isPlaying = playingStatus
 
         if(playingStatus){
             binding.mainMiniplayerBtn.visibility = View.GONE
@@ -608,6 +632,35 @@ class MainActivity : AppCompatActivity() {
         Log.d("DB DATA", _songs.toString())
     }
 
+    private fun getPlayingSongPosition(songId: Int): Int{
+        for (i in 0 until songs.size){
+            if (songs[i].id == songId){
+                return i
+            }
+        }
+        return 0
+    }
+    private fun moveSong(direct: Int){
+        if(nowPos + direct < 0){
+            Toast.makeText(this, "first song", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if(nowPos + direct >= songs.size)
+        {
+            Toast.makeText(this, "last song", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        nowPos += direct
+
+        player.interrupt() //스레드 종료
+        startPlayer() //스레드 재시작
+        mediaPlayer?.release() //미디어 플레이어가 가지고 있던 소스 해제
+        mediaPlayer = null // 해제
+
+        setMiniPlayer(songs[nowPos])
+    }
+
     //쓰레드를 위한 객체
     //생성자 playTime isPlaying 생성
     inner class Player(var currentTime:Int, var isPlaying: Boolean, var isRepeat: Boolean) : Thread(){
@@ -634,25 +687,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer?.pause() // 미디어 플레이어 중지
-        player.isPlaying = false // 스레드 중지
-
-        song.currentTime = binding.mainMiniplayerSb.progress/ 1000
-        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${song.currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress}")
-
-        songDB.songDao().updateCurrentTimeById(song.currentTime, song.id)
-    }
-    override fun onDestroy() {
-        super.onDestroy()
-
-        player.interrupt() // 스레드 종료
-        mediaPlayer?.release() // 미디어 플레이어 종료
-        mediaPlayer = null
     }
 }
 
