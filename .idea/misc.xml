@@ -29,7 +29,7 @@
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/activity_main.xml" value="0.3294881038211968" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/activity_song.xml" value="0.264" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/activity_splash.xml" value="0.16452702702702704" />
-        <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_album.xml" value="0.16" />
+        <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_album.xml" value="0.264" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_album2.xml" value="0.1" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_banner.xml" value="0.16182432432432434" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_detail.xml" value="0.264" />
@@ -46,6 +46,7 @@
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/fragment_viewpager.xml" value="0.1445945945945946" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/item_album.xml" value="0.264" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/item_savedsongs.xml" value="0.4" />
+        <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/item_songs.xml" value="0.4" />
         <entry key="..\:/Users/kysle/Flo/app/src/main/res/layout/style_tablayout.xml" value="0.16182432432432434" />
       </map>
     </option>
