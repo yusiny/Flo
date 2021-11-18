@@ -21,7 +21,7 @@ class SongActivity : AppCompatActivity() {
 
     private var songs = ArrayList<Song>()
     private var nowPos = 0
-    private var albumId: Int = 1
+    private var albumId: Int = 0
     private lateinit var songDB: SongDatabase
 
     //미디어 플레이어와 스레드

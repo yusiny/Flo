@@ -38,47 +38,14 @@ class HomeFragment : Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        initMainBanner()
+        initAlbumRV()
+        initMiniBanner()
 
-        //데이터 리스트 생성
-        albumDatas.apply {
-            add(Album(1, "Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
-            add(Album(2, "Weekend", "태연", R.drawable.img_album_exp3))
-            add(Album(3, "Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album(4, "Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
-        }
+        return binding.root
+    }
 
-        //더미데이터랑 어댑터 연결
-        val albumRVAdapter = AlbumRVAdapter(albumDatas)
-        //리사이클러뷰에 어댑터 연결
-        binding.homeAlbumareaRv.adapter = albumRVAdapter
-        albumRVAdapter.setMyItemClickListener(object : AlbumRVAdapter.MyItemClickListener{
-            override fun onItemClick(album: Album) {
-                startAlbumFragment(album)
-            }
-
-            override fun onRemoveAlbum(position: Int) {
-                albumRVAdapter.removeItem(position)
-            }
-
-        })
-
-
-        //레이아웃 매니저 설정
-        binding.homeAlbumareaRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
-        //Viewpager를 위한 adapter 가져오기
-        val bannerAdapter = BannerViewpagerAdapter(this)
-        //리스트에 프래그먼트 추가
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
-
-        binding.homeBannerVp.adapter = bannerAdapter
-        binding.homeBannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-
+    private fun initMainBanner() {
         //메인 배너 Viewpager를 위한 adapter 가져오기
         val mainbannerAdapter = MainbannerViewpagerAdapter(this)
         //리스트에 프래그먼트 추가
@@ -94,32 +61,16 @@ class HomeFragment : Fragment() {
         autopager.start()
 
         //메인 배너 indicater를 tablayout 연결하기
-        TabLayoutMediator(binding.homeMainbannerTb, binding.homeMainbannerVp){
-            tab, position->
+        TabLayoutMediator(binding.homeMainbannerTb, binding.homeMainbannerVp) { tab, position ->
             //Some implementation
         }.attach()
-        return binding.root
     }
-
-    private fun startAlbumFragment(album: Album) {
-        (context as MainActivity).supportFragmentManager.beginTransaction()
-            .replace(R.id.main_frm, AlbumFragment().apply {
-                arguments = Bundle().apply {
-                    val gson = Gson()
-                    val albumJson = gson.toJson(album)
-                    putString("album", albumJson)
-                }
-            })
-            .commitAllowingStateLoss()
-    }
-
     //메인배너 자동 스크롤을 위한 setPage 함수
     fun setPage(){
         if(currentPosition == 3) currentPosition = 0
         binding.homeMainbannerVp.setCurrentItem(currentPosition, true)
         currentPosition ++
     }
-
     //메인배너를 위한 스레드
     inner class AutoPager(): Thread(){
         override fun run() {
@@ -131,6 +82,64 @@ class HomeFragment : Fragment() {
             }catch (e: InterruptedException){}
         }
     }
+
+    private fun initMiniBanner() {
+        //Viewpager를 위한 adapter 가져오기
+        val bannerAdapter = BannerViewpagerAdapter(this)
+        //리스트에 프래그먼트 추가
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp))
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
+
+        binding.homeBannerVp.adapter = bannerAdapter
+        binding.homeBannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+    }
+
+
+
+    private fun initAlbumRV() {
+        val songDB = SongDatabase.getInstance(requireContext())!!
+        albumDatas = songDB.albumDao().getAlbums() as ArrayList
+
+        //더미데이터랑 어댑터 연결
+        val albumRVAdapter = AlbumRVAdapter(albumDatas)
+        //리사이클러뷰에 어댑터 연결
+        binding.homeAlbumareaRv.adapter = albumRVAdapter
+        binding.homeAlbumareaRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+        //홈프래그먼트_ 앨범 리사이클러뷰의 이벤트 리스너
+        albumRVAdapter.setMyItemClickListener(object : AlbumRVAdapter.MyItemClickListener {
+            override fun onItemClick(album: Album, id: Int) {
+                startAlbumFragment(album, id)
+            }
+
+            override fun onPlayBtnClick(albumId: Int) {
+                //앨범의 play 버튼 클릭 시
+            }
+
+            override fun onRemoveAlbum(position: Int) {
+                albumRVAdapter.removeItem(position)
+            }
+
+        })
+    }
+    private fun startAlbumFragment(album: Album, albumId: Int) {
+        (context as MainActivity).supportFragmentManager.beginTransaction()
+            .replace(R.id.main_frm, AlbumFragment().apply {
+                arguments = Bundle().apply {
+                    val gson = Gson()
+                    val albumJson = gson.toJson(album)
+                    putString("album", albumJson)
+                    putInt("albumId", albumId)
+                }
+            })
+            .commitAllowingStateLoss()
+    }
+
+
 
     override fun onDestroy() {
         autopager.interrupt()

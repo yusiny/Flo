@@ -2,15 +2,16 @@ package com.example.flo
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flo.databinding.FragmentSongBinding
 
-class SongFragment:Fragment() {
+//송프래그먼트_ albumId를 인자로 받아옴 <- 앨범프래그먼트의 뷰페이저에서 인자로 받아온 것
+class SongFragment(private val albumId: Int) :Fragment() {
     lateinit var binding : FragmentSongBinding
 
     override fun onCreateView(
@@ -27,9 +28,12 @@ class SongFragment:Fragment() {
 
         //리사이클러뷰에 노래 넣어주기
         val songDB = SongDatabase.getInstance(requireContext())!!
-        val albumId = 1
+
+        //받아온 albumId에 해당하는 노래들 받아오기 _ songDao의 쿼리문 이용
         val songs = songDB.songDao().getSongsByAlbumId(albumId)
-        songsRVAdapter.addSongs(songs as ArrayList)
+
+        Log.d("albumId", "id는 ${albumId} album는 ${songs}")
+        songsRVAdapter.addSongs(songs as ArrayList) //songRVAdpater에 넣어주기
 
         initClickListener()
 

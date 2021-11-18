@@ -10,7 +10,8 @@ class AlbumRVAdapter(private val albumList: ArrayList<Album>) :
 
     // 클릭 인터페이스를 정의
     interface MyItemClickListener{
-        fun onItemClick(album: Album)
+        fun onItemClick(album: Album, id: Int)
+        fun onPlayBtnClick(albumId: Int)
         fun onRemoveAlbum(position: Int)
     }
 
@@ -33,8 +34,11 @@ class AlbumRVAdapter(private val albumList: ArrayList<Album>) :
     // 뷰홀더가 매개변수로 들어와서 자식뷰에 접근가능 => 데이터 바인딩
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(albumList[position])
-//        holder.binding.itemTodayMusicAlbumImgPlayIv.setOnClickListener {  }
-        holder.itemView.setOnClickListener { mItemClickListener.onItemClick(albumList[position]) }
+
+        holder.binding.itemAlbumPlayImgIv.setOnClickListener {
+            mItemClickListener.onPlayBtnClick(albumList[position].id)
+        }
+        holder.itemView.setOnClickListener { mItemClickListener.onItemClick(albumList[position], albumList[position].id) }
 //        holder.binding.itemAlbumTitleTv.setOnClickListener { mItemClickListener.onRemoveAlbum(po]]]]]]ㅁ]sition) }
     }
 

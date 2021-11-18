@@ -11,8 +11,6 @@ import com.example.flo.databinding.ItemSongsBinding
 class SongRVAdapter(): RecyclerView.Adapter<SongRVAdapter.ViewHolder>(){
     private val songs = ArrayList<Song>()
 
-
-
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val binding: ItemSongsBinding = ItemSongsBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
 
@@ -20,7 +18,7 @@ class SongRVAdapter(): RecyclerView.Adapter<SongRVAdapter.ViewHolder>(){
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(songs[position])
+        holder.bind(songs[position], position)
     }
 
     override fun getItemCount(): Int = songs.size
@@ -34,8 +32,8 @@ class SongRVAdapter(): RecyclerView.Adapter<SongRVAdapter.ViewHolder>(){
     }
 
     inner class ViewHolder(val binding: ItemSongsBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(song: Song){
-            binding.itemSongsIndexTv.text = String.format("%02d", song.id)
+        fun bind(song: Song, nowPos: Int){
+            binding.itemSongsIndexTv.text = String.format("%02d", nowPos+1)
             binding.itemSongsTitleTv.text = song.title
             binding.itemSongsSingerTv.text = song.singer
             if(song.isTitle) binding.itemSongsTitlelogoIv.visibility = View.VISIBLE

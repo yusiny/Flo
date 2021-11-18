@@ -9,6 +9,8 @@ import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.flo.databinding.ActivityMainBinding
 import com.google.gson.Gson
 import java.lang.Thread.sleep
@@ -21,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     //Song 객체
     private var song:Song = Song()
     private lateinit var songDB: SongDatabase
-    private var albumId: Int = 1
+    private var albumId: Int = 0
 
     //미디어 플레이어와 Player 스레드
     private var mediaPlayer: MediaPlayer? = null
@@ -234,12 +236,11 @@ class MainActivity : AppCompatActivity() {
     private fun inputDummySongs(){
         songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
-
+        Log.d("MainActivity", songs.toString())
         if(songs.isNotEmpty()) return
 
         songDB.songDao().insert(
             Song(
-                1,
                 "Lilac",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -255,7 +256,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                2,
                 "Flu",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -270,7 +270,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                3,
                 "Coin",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -286,7 +285,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                4,
                 "봄 안녕 봄",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -301,7 +299,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                5,
                 "Celebrity",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -316,7 +313,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                6,
                 "돌림노래 (Feat. DEAN)",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -331,7 +327,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                7,
                 "빈 컵(Empty Cup)",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -346,7 +341,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                8,
                 "아이와 나의 바다",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -356,12 +350,11 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                2
+                1
             )
         )
         songDB.songDao().insert(
             Song(
-                9,
                 "어푸 (Ah puh)",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -376,7 +369,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                10,
                 "에필로그",
                 "아이유 (IU)",
                 R.drawable.img_album_exp2,
@@ -390,9 +382,8 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        songDB.songDao().insert(
+         songDB.songDao().insert(
             Song(
-                1,
                 "Butter",
                 "방탄소년단",
                 R.drawable.img_album_exp,
@@ -408,7 +399,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                2,
                 "Butter (Hotter Remix) ",
                 "방탄소년단",
                 R.drawable.img_album_exp,
@@ -423,7 +413,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                3,
                 "Butter (Sweeter Remix) ",
                 "방탄소년단",
                 R.drawable.img_album_exp,
@@ -433,13 +422,12 @@ class MainActivity : AppCompatActivity() {
                 false,
                 false,
                 false,
-                3
+                2
             )
         )
 
         songDB.songDao().insert(
             Song(
-                1,
                 "Next Level (IMALY Remix)",
                 "aespa",
                 R.drawable.img_album_exp4,
@@ -456,7 +444,6 @@ class MainActivity : AppCompatActivity() {
 
         songDB.songDao().insert(
             Song(
-                1,
                 "Weekend",
                 "태연",
                 R.drawable.img_album_exp3,
@@ -473,7 +460,6 @@ class MainActivity : AppCompatActivity() {
 
         songDB.songDao().insert(
             Song(
-                1,
                 "Butter",
                 "방탄소년단",
                 R.drawable.img_album_exp,
@@ -488,7 +474,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                2,
                 "Permission To Dance",
                 "방탄소년단",
                 R.drawable.img_album_exp5,
@@ -504,7 +489,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                3,
                 "Butter (Instrumental)",
                 "방탄소년단",
                 R.drawable.img_album_exp5,
@@ -519,7 +503,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                4,
                 "Permission To Dance (Instrunmental)",
                 "방탄소년단",
                 R.drawable.img_album_exp5,
@@ -535,7 +518,6 @@ class MainActivity : AppCompatActivity() {
 
         songDB.songDao().insert(
             Song(
-                1,
                 "aenergy",
                 "aespa",
                 R.drawable.img_album_exp6,
@@ -550,7 +532,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                2,
                 "Savage",
                 "aespa",
                 R.drawable.img_album_exp6,
@@ -566,7 +547,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                3,
                 "I'll Make You Cry",
                 "aespa",
                 R.drawable.img_album_exp6,
@@ -581,7 +561,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                4,
                 "YEPPI YEPPI",
                 "aespa",
                 R.drawable.img_album_exp6,
@@ -596,7 +575,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                5,
                 "ICONIC",
                 "aespa",
                 R.drawable.img_album_exp6,
@@ -611,7 +589,6 @@ class MainActivity : AppCompatActivity() {
         )
         songDB.songDao().insert(
             Song(
-                6,
                 "자각몽 (Lucid Dream)",
                 "aespa",
                 R.drawable.img_album_exp6,
