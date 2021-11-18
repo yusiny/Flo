@@ -41,7 +41,7 @@
     <!--tablayout-->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/locker_tb"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="viewStart"
         app:tabIndicatorColor="#3A3AF8"
