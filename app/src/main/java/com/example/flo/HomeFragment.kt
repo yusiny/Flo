@@ -41,10 +41,10 @@ class HomeFragment : Fragment() {
 
         //데이터 리스트 생성
         albumDatas.apply {
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
-            add(Album("Weekend", "태연", R.drawable.img_album_exp3))
-            add(Album("Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
-            add(Album("Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
+            add(Album(1, "Butter", "방탄소년단(BTS)", R.drawable.img_album_exp))
+            add(Album(2, "Weekend", "태연", R.drawable.img_album_exp3))
+            add(Album(3, "Next Level", "에스파(aespa)", R.drawable.img_album_exp4))
+            add(Album(4, "Butter", "방탄소년단(BTS)", R.drawable.img_album_exp5))
         }
 
         //더미데이터랑 어댑터 연결
