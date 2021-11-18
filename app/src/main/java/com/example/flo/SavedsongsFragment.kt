@@ -13,7 +13,6 @@ class SavedsongsFragment: Fragment() {
     lateinit var binding: FragmentSavedsongsBinding
     lateinit var songDB: SongDatabase
 
-    private var savedSongsDatas = ArrayList<Album>()
     private var isSelectedAll: Boolean = false
 
     override fun onCreateView(
@@ -23,6 +22,13 @@ class SavedsongsFragment: Fragment() {
     ): View? {
         binding = FragmentSavedsongsBinding.inflate(inflater, container, false)
 
+        setSavedSongsRV()
+        initClickListener()
+
+        return binding.root
+    }
+
+    private fun setSavedSongsRV() {
         songDB = SongDatabase.getInstance(requireContext())!!
 
         //더미데이터랑 어댑터 연결
@@ -30,21 +36,24 @@ class SavedsongsFragment: Fragment() {
         //리사이클러뷰에 어댑터 연결
         binding.savedsongsRv.adapter = savedsongsRVAdaper
         //레이아웃 매니저 설정
-        binding.savedsongsRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        binding.savedsongsRv.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        savedsongsRVAdaper.addSongs(songDB.songDao().getLikedSongs(true) as ArrayList)
 
         //클릭 이벤트 리스너 연결
-        savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.MyItemClickListener{
+        savedsongsRVAdaper.setMyItemClickListener(object : SavedSongsRVAdapter.MyItemClickListener {
             override fun onRemoveSong(songId: Int) {
-              songDB.songDao().updateIsLikeById(false, songId)
+                songDB.songDao().updateIsLikeById(false, songId)
             }
 
         })
+    }
 
-        savedsongsRVAdaper.addSongs(songDB.songDao().getLikedSongs(true) as ArrayList)
+    private fun initClickListener() {
 
-
-        binding.savedsongsSelectallAreaV.setOnClickListener{
-            if(isSelectedAll){
+        //전제선택 버튼
+        binding.savedsongsSelectallAreaV.setOnClickListener {
+            if (isSelectedAll) {
                 isSelectedAll = false
                 binding.savedsongsSelectallBtnOffIv.visibility = View.VISIBLE
                 binding.savedsongsSelectallBtnOnIv.visibility = View.GONE
@@ -52,7 +61,7 @@ class SavedsongsFragment: Fragment() {
                 binding.savedsongsSelectallTitleOnTv.visibility = View.GONE
                 binding.savedsongsRv.setBackgroundColor(Color.parseColor("#ffffff"))
 
-            }else {
+            } else {
                 isSelectedAll = true
                 binding.savedsongsSelectallBtnOffIv.visibility = View.GONE
                 binding.savedsongsSelectallBtnOnIv.visibility = View.VISIBLE
@@ -62,7 +71,7 @@ class SavedsongsFragment: Fragment() {
             }
         }
 
-        return binding.root
+        //로그인 버튼
     }
 }
 
