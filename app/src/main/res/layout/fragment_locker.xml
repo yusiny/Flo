@@ -18,6 +18,29 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp" />
+
+
+    <TextView
+        android:id="@+id/locker_usernickname_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="merry"
+        android:textColor="@color/deep_gray"
+        android:textSize="16sp"
+        android:layout_marginEnd="5dp"
+        app:layout_constraintTop_toTopOf="@id/locker_login_tv"
+        app:layout_constraintEnd_toStartOf="@id/locker_userimg_iv"/>
+    <ImageView
+        android:id="@+id/locker_userimg_iv"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/user_img_default"
+        android:layout_marginEnd="5dp"
+        app:layout_constraintTop_toTopOf="@id/locker_login_tv"
+        app:layout_constraintBottom_toBottomOf="@id/locker_login_tv"
+        app:layout_constraintEnd_toStartOf="@id/locker_login_tv" />
+
+
     <TextView
         android:id="@+id/locker_login_tv"
         android:layout_width="wrap_content"

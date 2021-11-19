@@ -15,4 +15,7 @@ interface UserDao {
 
     @Query("SELECT * FROM UserTable WHERE nickname = :nickname")
     fun isSameName(nickname: String): User?
+
+    @Query("SELECT * FROM UserTable WHERE id = :userId")
+    fun getUserById(userId: Int): User?
 }

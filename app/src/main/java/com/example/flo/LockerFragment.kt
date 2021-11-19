@@ -44,13 +44,20 @@ class LockerFragment : Fragment() {
 
         if(jwt == 0){
             binding.lockerLoginTv.text = "로그인"
+            binding.lockerUsernicknameTv.visibility = View.GONE
+            binding.lockerUserimgIv.visibility = View.GONE
 
             binding.lockerLoginTv.setOnClickListener{
                 startActivity(Intent(activity, LoginActivity::class.java))
             }
 
         }else{
+            val songDB = SongDatabase.getInstance(requireContext())!!
+            val user = songDB.userDao().getUserById(jwt)
             binding.lockerLoginTv.text = "로그아웃"
+            binding.lockerUsernicknameTv.visibility = View.VISIBLE
+            binding.lockerUserimgIv.visibility = View.VISIBLE
+            binding.lockerUsernicknameTv.text = user!!.nickname
 
             binding.lockerLoginTv.setOnClickListener {
                 //로그아웃
