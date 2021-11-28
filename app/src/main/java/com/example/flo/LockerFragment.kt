@@ -2,6 +2,7 @@ package com.example.flo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,9 +41,9 @@ class LockerFragment : Fragment() {
     }
 
     private fun initView(){
-        val jwt = getUserIdx(requireContext())!!
-
-        if(jwt == 0){
+        val userId = getUserIdx(requireContext())!!
+        Log.d("LOCKERFRG/JWT", "userId는 ${userId}")
+        if(userId == 0){
             binding.lockerLoginTv.text = "로그인"
             binding.lockerUsernicknameTv.visibility = View.GONE
             binding.lockerUserimgIv.visibility = View.GONE
@@ -53,11 +54,14 @@ class LockerFragment : Fragment() {
 
         }else{
             val songDB = SongDatabase.getInstance(requireContext())!!
-            val user = songDB.userDao().getUserById(jwt)
+            val user = songDB.userDao().getUserById(userId)
+            Log.d("LOCKERFRG/USER", user.toString())
             binding.lockerLoginTv.text = "로그아웃"
-            binding.lockerUsernicknameTv.visibility = View.VISIBLE
-            binding.lockerUserimgIv.visibility = View.VISIBLE
-            binding.lockerUsernicknameTv.text = user!!.name
+            if(user != null) {
+                binding.lockerUsernicknameTv.visibility = View.VISIBLE
+                binding.lockerUserimgIv.visibility = View.VISIBLE
+                binding.lockerUsernicknameTv.text = user!!.name
+            }
 
             binding.lockerLoginTv.setOnClickListener {
                 //로그아웃
@@ -68,11 +72,7 @@ class LockerFragment : Fragment() {
     }
 
     private fun logOut(){
-        val spf = activity?.getSharedPreferences("auth", AppCompatActivity.MODE_PRIVATE)
-        val editor = spf!!.edit()
-
-        editor.remove("jwt")
-        editor.apply()
+        removeUserIdx(requireContext())!!
     }
 
 }

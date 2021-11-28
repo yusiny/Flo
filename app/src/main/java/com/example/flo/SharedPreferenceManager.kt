@@ -17,6 +17,14 @@ fun getJwt(context: Context): String{
     return spf.getString("jwt", "")!!
 }
 
+fun removeJwt(context: Context){
+    val spf = context.getSharedPreferences("auth", AppCompatActivity.MODE_PRIVATE)
+    val editor = spf!!.edit()
+
+    editor.remove("jwt")
+    editor.apply()
+}
+
 fun saveUserIdx(context: Context, userIdx: Int){
     val spf = context.getSharedPreferences("auth", AppCompatActivity.MODE_PRIVATE)
     val editor = spf.edit()
@@ -29,4 +37,12 @@ fun getUserIdx(context: Context): Int{
     val spf = context.getSharedPreferences("auth", AppCompatActivity.MODE_PRIVATE)
 
     return spf.getInt("userIdx", 0)
+}
+
+fun removeUserIdx(context: Context){
+    val spf = context.getSharedPreferences("auth", AppCompatActivity.MODE_PRIVATE)
+    val editor = spf!!.edit()
+
+    editor.remove("userIdx")
+    editor.apply()
 }

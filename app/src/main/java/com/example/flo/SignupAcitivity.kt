@@ -95,6 +95,7 @@ class SignupAcitivity : AppCompatActivity(), SignUpView {
         val password: String = binding.signupPwEt.text.toString()
         val name: String = binding.signupNicknameEt.text.toString()
 
+
         return User(email, password, name)
     }
 
@@ -147,6 +148,10 @@ class SignupAcitivity : AppCompatActivity(), SignUpView {
             Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        //DB에 저장
+        val userDB = SongDatabase.getInstance(this)!!
+        userDB.userDao().insert(getUser())
 
         val authService = AuthService()
         authService.setSignUpView(this)

@@ -73,13 +73,6 @@ class LoginActivity: AppCompatActivity(), LoginView {
 //        }
 //    }
 
-    private fun saveUserIdx(userIdx: Int){
-        val spf = getSharedPreferences("auth", MODE_PRIVATE)
-        val editor = spf.edit()
-
-        editor.putInt("jwt", userIdx)
-        editor.apply()
-    }
 
     private fun login(){
         //id, email validation
@@ -129,8 +122,8 @@ class LoginActivity: AppCompatActivity(), LoginView {
         //로딩바 gone
 
         //발급받은 jwt를 저장해주는 함수
-        //saveJWT(this, auth.jwt)
-        saveUserIdx(auth.userIdx)
+        saveJwt(this, auth.jwt)
+        saveUserIdx(this, auth.userIdx)
 
         startMainActivity()
     }
