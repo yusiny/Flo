@@ -1,17 +1,21 @@
 package com.example.flo
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.databinding.ActivityLoginBinding
 import com.example.flo.databinding.ActivitySignupBinding
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
-class SignupAcitivity : AppCompatActivity() {
+class SignupAcitivity : AppCompatActivity(), SignUpView {
     lateinit var binding: ActivitySignupBinding
     private var isPWhide: Boolean = true
     private var isPWChide: Boolean = true
@@ -26,7 +30,6 @@ class SignupAcitivity : AppCompatActivity() {
         //회원가입 버튼 클릭 시 메인으로 이동
         binding.signupSignupbtnTv.setOnClickListener {
             signUp()
-            finish()
         }
 
         initClickListener()
@@ -90,23 +93,52 @@ class SignupAcitivity : AppCompatActivity() {
         val email: String =
             binding.signupIdEt.text.toString() + "@" + binding.signupIdAdressEt.text.toString()
         val password: String = binding.signupPwEt.text.toString()
-        val nickname: String = binding.signupNicknameEt.text.toString()
+        val name: String = binding.signupNicknameEt.text.toString()
 
-        return User(nickname, email, password)
+        return User(email, password, name)
     }
 
-    private fun signUp() {
-        //id, email empty 확인
+//    private fun signUp1() {
+//        //id, email empty 확인
+//        if (binding.signupIdEt.text.toString().isEmpty() || binding.signupIdAdressEt.text.toString()
+//                .isEmpty()
+//        ) {
+//            Toast.makeText(this, "이메일 형식이 잘못되었습니다.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//
+//        if(!ready){
+//            Toast.makeText(this, "닉네임이 적용되지 않았습니다.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        //비밀번호 validation 처리
+//        if (binding.signupPwEt.text.toString() != binding.signupPwConfirmEt.text.toString()) {
+//            Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        //DB에 저장
+//        val userDB = SongDatabase.getInstance(this)!!
+//        userDB.userDao().insert(getUser())
+//
+//        val users = userDB.userDao().getUsers()
+//        Log.d("SIGNUP", users.toString())
+//    }
+
+    private fun signUp(){
+        //nickname validation 처리
+        if(binding.signupNicknameEt.text.toString().isEmpty()){
+            Toast.makeText(this, "닉네임을 입력해 주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        //id, email validation 처리
         if (binding.signupIdEt.text.toString().isEmpty() || binding.signupIdAdressEt.text.toString()
                 .isEmpty()
         ) {
             Toast.makeText(this, "이메일 형식이 잘못되었습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-
-        if(!ready){
-            Toast.makeText(this, "닉네임이 적용되지 않았습니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -116,12 +148,30 @@ class SignupAcitivity : AppCompatActivity() {
             return
         }
 
-        //DB에 저장
-        val userDB = SongDatabase.getInstance(this)!!
-        userDB.userDao().insert(getUser())
+        val authService = AuthService()
+        authService.setSignUpView(this)
+        authService.signUp(getUser())
 
-        val users = userDB.userDao().getUsers()
-        Log.d("SIGNUP", users.toString())
+    }
 
+    override fun onSignUpLoading() {
+        //로딩바
+        //binding.signuploadingbar.visibility = View.VISIBLE
+    }
+
+    override fun onSignUpSuccess() {
+        //로딩바 GONE
+        finish()
+    }
+
+    override fun onSignUpFailure(code: Int, message: String) {
+       //로딩바 GONE
+
+        when(code){
+            2016, 2017 -> {
+                binding.signupIdErrorTv.visibility = View.VISIBLE
+                binding.signupIdErrorTv.text = message
+            }
+        }
     }
 }

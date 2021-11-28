@@ -13,8 +13,8 @@ interface UserDao {
     @Query("SELECT * FROM UserTable WHERE email = :email AND password = :password")
     fun getUser(email: String, password: String): User?
 
-    @Query("SELECT * FROM UserTable WHERE nickname = :nickname")
-    fun isSameName(nickname: String): User?
+    @Query("SELECT * FROM UserTable WHERE name = :name")
+    fun isSameName(name: String): User?
 
     @Query("SELECT * FROM UserTable WHERE id = :userId")
     fun getUserById(userId: Int): User?

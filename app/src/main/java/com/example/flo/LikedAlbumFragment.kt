@@ -59,7 +59,7 @@ class LikedAlbumFragment: Fragment() {
         binding.likedalbumRv.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        val userId = getJWT()
+        val userId = getUserIdx(requireContext())!!
         val albums = songDB.albumDao().getLikedAlbums(userId)
         likedalbumAdapter.addAlbums(albums as ArrayList)
 
