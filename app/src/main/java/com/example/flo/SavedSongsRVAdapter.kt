@@ -47,6 +47,7 @@ class SavedSongsRVAdapter(): RecyclerView.Adapter<SavedSongsRVAdapter.ViewHolder
         notifyDataSetChanged()
     }
 
+
     override fun getItemCount(): Int = songs.size
 
     inner class ViewHolder(val binding: ItemSavedsongsBinding) : RecyclerView.ViewHolder(binding.root){

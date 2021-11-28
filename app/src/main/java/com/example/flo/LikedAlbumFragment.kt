@@ -1,5 +1,6 @@
 package com.example.flo
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +23,27 @@ class LikedAlbumFragment: Fragment() {
         binding = FragmentLikedalbumBinding.inflate(inflater, container, false)
 
         setLikedAlbumRV()
+
+        var isSelectedAll = false
+        binding.likedalbumSelectallAreaV.setOnClickListener {
+            isSelectedAll = !isSelectedAll
+
+            if(isSelectedAll){
+                binding.likedalbumSelectallBtnOffIv.visibility = View.VISIBLE
+                binding.likedalbumSelectallBtnOnIv.visibility = View.GONE
+                binding.likedalbumSelectallTitleOffTv.visibility = View.VISIBLE
+                binding.likedalbumSelectallTitleOnTv.visibility = View.GONE
+                binding.likedalbumRv.setBackgroundColor(Color.parseColor("#ffffff"))
+            }else{
+                binding.likedalbumSelectallBtnOffIv.visibility = View.GONE
+                binding.likedalbumSelectallBtnOnIv.visibility = View.VISIBLE
+                binding.likedalbumSelectallTitleOffTv.visibility = View.GONE
+                binding.likedalbumSelectallTitleOnTv.visibility = View.VISIBLE
+                binding.likedalbumRv.setBackgroundColor(Color.parseColor("#eaeaea"))
+            }
+
+        }
+
 
         return binding.root
     }

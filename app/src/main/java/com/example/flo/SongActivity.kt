@@ -257,11 +257,11 @@ class SongActivity : AppCompatActivity() {
 
         if(isLike) {
             binding.songBtnLikeIv.setImageResource(R.drawable.ic_my_like_off)
-            ToastLiked.customedLikeToast(this, "좋아요 한 곡이 취소되었습니다.")?.show()
+            ToastCustomed.customedLikeToast(this, "좋아요 한 곡이 취소되었습니다.")?.show()
         }
         else{
             binding.songBtnLikeIv.setImageResource(R.drawable.ic_my_like_on)
-            ToastLiked.customedLikeToast(this, "좋아요 한 곡에 담겼습니다.")?.show()
+            ToastCustomed.customedLikeToast(this, "좋아요 한 곡에 담겼습니다.")?.show()
         }
     }
 

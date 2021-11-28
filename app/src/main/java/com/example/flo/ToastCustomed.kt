@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.example.flo.databinding.ToastLikedunlikedBinding
 
-object ToastLiked {
+object ToastCustomed {
    fun customedLikeToast(context: Context, message: String): Toast? {
         val inflater = LayoutInflater.from(context)
         val binding: ToastLikedunlikedBinding =

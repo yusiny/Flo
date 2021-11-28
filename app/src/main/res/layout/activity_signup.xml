@@ -64,7 +64,7 @@
         android:id="@+id/signup_amp_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="#"
+        android:text="\@"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="@id/signup_id_et"
