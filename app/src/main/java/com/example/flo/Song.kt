@@ -9,6 +9,7 @@ data class Song(
     var title:String = "",
     var singer:String ="",
     var coverImg: Int? = null,
+    var coverImgUrl: String? = null,
     var music: String = "",
     var playTime:Int = 0,
     var currentTime: Int = 0,

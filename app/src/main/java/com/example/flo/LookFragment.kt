@@ -1,6 +1,7 @@
 package com.example.flo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,9 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flo.databinding.FragmentLookBinding
 
 
-class LookFragment : Fragment() {
+class LookFragment : Fragment(), LookView {
 
-    lateinit var binding: FragmentLookBinding
+    private lateinit var binding: FragmentLookBinding
+    private lateinit var songRVAdapter: LookChartRVAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -19,23 +22,43 @@ class LookFragment : Fragment() {
     ): View {
         binding = FragmentLookBinding.inflate(inflater, container, false)
 
-
+        initRV()
+        getSongs()
 
         return binding.root
     }
 
-    private fun setSavedSongsRV(){
-        //roomDB
-        val songDB = SongDatabase.getInstance(requireContext())!!
 
-        //더미데이터랑 어댑터 연결
-        val chartRVAdapter = SavedSongsRVAdapter()
-        //리사이클러뷰에 어댑터 연결
-        binding.lookRv.adapter = chartRVAdapter
-        //레이아웃 매니저 설정
-        binding.lookRv.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+    private fun initRV(){
+        songRVAdapter = LookChartRVAdapter(requireContext())
+        binding.lookRv.adapter = songRVAdapter
+        binding.lookRv.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        chartRVAdapter.addSongs(songDB.songDao().getSongs() as ArrayList)
+    }
+
+    private fun getSongs(){
+        val songService = SongService()
+        songService.setLookView(this)
+
+        songService.getSongs()
+    }
+
+    override fun onGetSongsLoading() {
+       //로딩바
+    }
+
+    override fun onGetSongsSuccess(songs: ArrayList<Song>) {
+        //로딩바 끔
+
+        songRVAdapter.addSongs(songs)
+
+    }
+
+    override fun onGetSongsFailure(code: Int, message: String) {
+        //로딩바 끔
+
+        when(code){
+            400 -> Log.d("LOOKFRAG/API-ERROR", message)
+        }
     }
 }
