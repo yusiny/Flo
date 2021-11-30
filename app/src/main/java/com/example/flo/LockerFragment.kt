@@ -43,6 +43,7 @@ class LockerFragment : Fragment() {
     private fun initView(){
         val userId = getUserIdx(requireContext())!!
         Log.d("LOCKERFRG/JWT", "userId는 ${userId}")
+
         if(userId == 0){
             binding.lockerLoginTv.text = "로그인"
             binding.lockerUsernicknameTv.visibility = View.GONE
@@ -53,15 +54,13 @@ class LockerFragment : Fragment() {
             }
 
         }else{
-            val songDB = SongDatabase.getInstance(requireContext())!!
-            val user = songDB.userDao().getUserById(userId)
-            Log.d("LOCKERFRG/USER", user.toString())
+            //val songDB = SongDatabase.getInstance(requireContext())!!
+            //val user = songDB.userDao().getUserById(userId)
+            Log.d("LOCKERFRG/USER", userId.toString())
             binding.lockerLoginTv.text = "로그아웃"
-            if(user != null) {
-                binding.lockerUsernicknameTv.visibility = View.VISIBLE
-                binding.lockerUserimgIv.visibility = View.VISIBLE
-                binding.lockerUsernicknameTv.text = user!!.name
-            }
+            binding.lockerUsernicknameTv.visibility = View.VISIBLE
+            binding.lockerUserimgIv.visibility = View.VISIBLE
+            binding.lockerUsernicknameTv.text = String.format("%02d", userId)
 
             binding.lockerLoginTv.setOnClickListener {
                 //로그아웃
@@ -73,6 +72,7 @@ class LockerFragment : Fragment() {
 
     private fun logOut(){
         removeUserIdx(requireContext())!!
+        removeJwt(requireContext())!!
     }
 
 }

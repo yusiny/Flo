@@ -11,6 +11,7 @@ import kotlin.math.sign
 class AuthService {
     private lateinit var signUpView: SignUpView
     private lateinit var loginView: LoginView
+    private lateinit var splashView: SplashView
 
     fun setSignUpView(signUpView: SignUpView){
         this.signUpView = signUpView
@@ -18,6 +19,10 @@ class AuthService {
 
     fun setLoginView(loginView: LoginView){
         this.loginView = loginView
+    }
+
+    fun setSplashView(splashView: SplashView){
+        this.splashView = splashView
     }
 
     fun signUp(user: User){
@@ -80,4 +85,33 @@ class AuthService {
         Log.d("LOGINACT/ASYNC", "hello")
     }
 
+    fun autoLogIn(jwt: String){
+        val authService = getRetrofit().create(AuthRetrofitInterface::class.java)
+
+        splashView.onSplashLoading()
+
+        authService.autoLogin(jwt).enqueue(object : Callback<AuthResponse>{
+            @SuppressLint("LongLogTag")
+
+            override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                Log.d("SPLASHACT/API-RESPONSE", response.toString())
+
+                val resp = response.body()!!
+
+                Log.d("SPLASHACT/API-RESPONSE-FLO", resp.toString())
+
+                when(resp.code){
+                    1000 -> splashView.onSplashSuccess()
+                    else -> splashView.onSplashFailure(resp.code, resp.message)
+                }
+            }
+
+            override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                Log.d("SPLASHACT/API-ERROR", t.message.toString())
+
+                splashView.onSplashFailure(400, "네트워크 오류가 발생했습니다.")
+            }
+
+        })
+    }
 }

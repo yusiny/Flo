@@ -150,8 +150,8 @@ class SignupAcitivity : AppCompatActivity(), SignUpView {
         }
 
         //DB에 저장
-        val userDB = SongDatabase.getInstance(this)!!
-        userDB.userDao().insert(getUser())
+//        val userDB = SongDatabase.getInstance(this)!!
+//        userDB.userDao().insert(getUser())
 
         val authService = AuthService()
         authService.setSignUpView(this)

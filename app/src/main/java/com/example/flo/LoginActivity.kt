@@ -27,7 +27,7 @@ class LoginActivity: AppCompatActivity(), LoginView {
     private fun initClickListener() {
         binding.loginLoginbtnTv.setOnClickListener {
             login()
-            startMainActivity()
+
         }
 
         binding.loginPwHideIv.setOnClickListener {
@@ -38,7 +38,7 @@ class LoginActivity: AppCompatActivity(), LoginView {
             startActivity(Intent(this, SignupAcitivity::class.java))
         }
 
-        binding.loginClosebtnIv.setOnClickListener { finish() }
+        binding.loginClosebtnIv.setOnClickListener { startMainActivity() }
     }
 
 //    private fun signIn() {
@@ -95,9 +95,7 @@ class LoginActivity: AppCompatActivity(), LoginView {
 
         val authService = AuthService()
         authService.setLoginView(this)
-
         authService.login(user)
-
     }
 
     private fun startMainActivity(){
@@ -126,6 +124,7 @@ class LoginActivity: AppCompatActivity(), LoginView {
         saveUserIdx(this, auth.userIdx)
 
         startMainActivity()
+        finish()
     }
 
     override fun onLoginFailure(code: Int, message: String) {

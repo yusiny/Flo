@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         player.isPlaying = false // 스레드 중지
 
         songs[nowPos].currentTime = binding.mainMiniplayerSb.progress/ 1000
-        Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${songs[nowPos].currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress}")
+        //Log.d("MA", "메인액티비티에서 보내는 currentTime은 ${songs[nowPos].currentTime} 프로그레스는 ${binding.mainMiniplayerSb.progress}")
 
         songDB.songDao().updateCurrentTimeById(songs[nowPos].currentTime, songs[nowPos].id)
     }
@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity() {
     private fun inputDummySongs(){
         songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
-        Log.d("MainActivity", songs.toString())
+        //Log.d("MainActivity", songs.toString())
         if(songs.isNotEmpty()) return
 
         songDB.songDao().insert(
@@ -629,7 +629,7 @@ class MainActivity : AppCompatActivity() {
 
 
         val _songs = songDB.songDao().getSongs()
-        Log.d("DB DATA", _songs.toString())
+        //Log.d("DB DATA", _songs.toString())
     }
 
     private fun getPlayingSongPosition(songId: Int): Int{
